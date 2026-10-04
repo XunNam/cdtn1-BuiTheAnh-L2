@@ -49,7 +49,7 @@ Sẽ được cập nhật khi test framework được thiết lập.
 - [x] Tạo cấu trúc thư mục chuẩn
 - [x] Tạo .gitignore
 - [x] Tạo .env.example
-- [x] Tạo README khung
+- [x] Tạo khung README
 - [ ] Khởi tạo frontend
 - [ ] Khởi tạo backend
 - [ ] Kết nối PostgreSQL
