@@ -4,7 +4,7 @@ Thông tin sinh viên:
 - Bùi Thế Anh
 - Track SE
 - Chuyên đề Tốt nghiệp 1
-- HK1 2026–2027
+- HK1 2026–2027 (HK261)
 
 Luồng nghiệp vụ: L2 – Tiếp nhận và phân loại yêu cầu bảo hành
 
