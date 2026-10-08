@@ -1,0 +1,90 @@
+Table customer [headercolor: #175e7a] {
+	customer_id bigint [ pk ]
+	full_name varchar(120) [ not null ]
+	phone varchar(20) [ not null, unique ]
+	created_at timestamptz [ not null, default: `now()` ]
+	deleted_at timestamptz
+}
+
+Table device [headercolor: #175e7a] {
+	device_id bigint [ pk ]
+	customer_id bigint [ not null ]
+	serial_no varchar(50) [ not null, unique ]
+	purchase_date date
+	warranty_months smallint [ not null, default: 12 ]
+}
+
+Table issue_category [headercolor: #175e7a] {
+	category_id integer [ pk ]
+	category_name varchar(60) [ not null, unique ]
+	default_priority varchar(10) [ not null ]
+	is_active boolean [ not null, default: true ]
+}
+
+Table ticket [headercolor: #175e7a] {
+	ticket_id bigint [ pk ]
+	ticket_code varchar(20) [ not null, unique ]
+	device_id bigint [ not null ]
+	center_id bigint [ not null ]
+	received_by bigint [ not null ]
+	category_id integer [ not null ]
+	issue_desc text [ not null ]
+	priority varchar(10) [ not null ]
+	status varchar(20) [ not null, default: 'MOI' ]
+	received_at timestamptz [ not null, default: `now()` ]
+	due_date timestamptz [ not null ]
+	warranty_status varchar(20) [ not null ]
+	approved_by bigint
+	approved_at timestamptz
+	deleted_at timestamptz
+
+	indexes {
+		(center_id, received_at) [ name: 'idx_ticket_pending_approval' ]
+	}
+}
+
+Table ticket_status_log [headercolor: #175e7a] {
+	log_id bigint [ pk ]
+	ticket_id bigint [ not null ]
+	from_status varchar(20)
+	to_status varchar(20) [ not null ]
+	changed_at timestamptz [ not null, default: `now()` ]
+	changed_by bigint [ not null ]
+	note varchar(255)
+
+	indexes {
+		(ticket_id, changed_at) [ name: 'idx_ticket_status_log_time' ]
+	}
+}
+
+Table ticket_communication [headercolor: #175e7a] {
+	communication_id bigint [ pk ]
+	ticket_id bigint [ not null ]
+	content text [ not null ]
+	created_at timestamptz [ not null, default: `now()` ]
+	created_by bigint [ not null ]
+
+	indexes {
+		(ticket_id, created_at) [ name: 'idx_ticket_communication_time' ]
+	}
+}
+
+Ref fk_device_customer_id_customer {
+	device.customer_id > customer.customer_id [ delete: restrict, update: no action ]
+}
+
+Ref fk_ticket_device_id_device {
+	ticket.device_id > device.device_id [ delete: restrict, update: no action ]
+}
+
+Ref fk_ticket_category_id_issue_category {
+	ticket.category_id > issue_category.category_id [ delete: restrict, update: no action ]
+}
+
+Ref fk_ticket_status_log_ticket_id_ticket {
+	ticket_status_log.ticket_id > ticket.ticket_id [ delete: restrict, update: no action ]
+}
+
+Ref fk_ticket_communication_ticket_id_ticket {
+	ticket_communication.ticket_id > ticket.ticket_id [ delete: restrict, update: no action ]
+}
