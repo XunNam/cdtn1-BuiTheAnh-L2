@@ -1,0 +1,98 @@
+{
+  "result": "PASS",
+  "denied": 9,
+  "unauthorized_succeeded": 0,
+  "evidence": [
+    {
+      "id": "N01",
+      "actor": "anonymous",
+      "center": null,
+      "expected": 401,
+      "actual": 401,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N02",
+      "actor": "invalid token",
+      "center": null,
+      "expected": 401,
+      "actual": 401,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N03",
+      "actor": "employee11",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N04",
+      "actor": "manager21 outside ticket center2",
+      "center": 1,
+      "expected": 404,
+      "actual": 404,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N05",
+      "actor": "employee11 forged headers",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N06",
+      "actor": "employee11 forged body",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N07",
+      "actor": "manager21 expired token",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N08",
+      "actor": "manager21 deactivated session",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    },
+    {
+      "id": "N09",
+      "actor": "inactive_demo has no session",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "after": "5bd90ca532748c02b90d654b31a0a82debea2525e7161c6e13f5b384bd836bc3",
+      "pass": true
+    }
+  ],
+  "limit": "Finite nine-request regression, not proof of absolute security"
+}

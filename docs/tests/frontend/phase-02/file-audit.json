@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "method": "SHA-256 comparison with in-session filesystem snapshot before FE-02 edits; no Git commands",
+  "changedExistingFiles": [
+    "src/frontend/README.md",
+    "src/frontend/app/globals.css",
+    "src/frontend/src/components/screens/login-screen.tsx",
+    "src/frontend/tests/api-client.test.ts",
+    "src/frontend/tests/browser/l2.spec.ts",
+    "docs/architecture-thuc-te.md",
+    "docs/thay-doi-thiet-ke.md",
+    "docs/plans/frontend-l2-implementation-plan.md",
+    "docs/plans/frontend-l2-verification-plan.md",
+    "README.md"
+  ],
+  "protectedFiles": {
+    "backend": {
+      "count": 61,
+      "changed": []
+    },
+    "contractAndSchema": {
+      "count": 4,
+      "changed": []
+    },
+    "dependencies": {
+      "count": 5,
+      "changed": []
+    },
+    "previousEvidence": {
+      "count": 36,
+      "changed": []
+    },
+    "authFoundation": {
+      "count": 5,
+      "changed": []
+    },
+    "businessComponents": {
+      "count": 5,
+      "changed": []
+    },
+    "instructions": {
+      "count": 2,
+      "changed": []
+    }
+  }
+}

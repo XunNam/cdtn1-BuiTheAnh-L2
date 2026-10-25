@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-25",
+  "method": "SHA-256 comparison with in-session filesystem snapshot before FE-03 edits; no Git commands",
+  "baselineFileCount": 198,
+  "scope": "Selected source/document/test/evidence files in src/docs/scripts and listed root files; excludes node_modules, .next, .private, test-results, dist/build and Git data. Not a full repository security audit.",
+  "changedExistingFiles": [
+    "src/backend/scripts/ui-test.ts",
+    "src/frontend/README.md",
+    "src/frontend/app/globals.css",
+    "src/frontend/src/components/legacy/intake-forms.tsx",
+    "src/frontend/src/components/screens/intake-screen.tsx",
+    "src/frontend/src/lib/api-client.ts",
+    "src/frontend/tests/api-client.test.ts",
+    "src/frontend/tests/browser/l2.spec.ts",
+    "src/frontend/tests/browser/login.spec.ts",
+    "docs/architecture-thuc-te.md",
+    "docs/thay-doi-thiet-ke.md",
+    "docs/plans/frontend-l2-implementation-plan.md",
+    "docs/plans/frontend-l2-verification-plan.md",
+    "README.md"
+  ],
+  "addedFiles": [
+    "src/frontend/src/components/intake/customer-section.tsx",
+    "src/frontend/src/components/intake/device-section.tsx",
+    "src/frontend/src/components/intake/form-feedback.tsx",
+    "src/frontend/src/components/intake/product-picker.tsx",
+    "src/frontend/src/lib/intake-validation.ts",
+    "src/frontend/tests/browser/intake.spec.ts",
+    "docs/tests/frontend/phase-03/backend-offline.png",
+    "docs/tests/frontend/phase-03/fe01-shell-375.png",
+    "docs/tests/frontend/phase-03/fe01-shell-768.png",
+    "docs/tests/frontend/phase-03/fe01-shell-desktop.png",
+    "docs/tests/frontend/phase-03/intake-1280.png",
+    "docs/tests/frontend/phase-03/intake-1920.png",
+    "docs/tests/frontend/phase-03/intake-375.png",
+    "docs/tests/frontend/phase-03/intake-768.png",
+    "docs/tests/frontend/phase-03/intake-empty-catalog.png",
+    "docs/tests/frontend/phase-03/intake-pagination.png",
+    "docs/tests/frontend/phase-03/intake-recovered.png",
+    "docs/tests/frontend/phase-03/login-1280.png",
+    "docs/tests/frontend/phase-03/login-375.png",
+    "docs/tests/frontend/phase-03/login-768.png",
+    "docs/tests/frontend/phase-03/login-capacity.png",
+    "docs/tests/frontend/phase-03/login-invalid-credentials.png",
+    "docs/tests/frontend/phase-03/login-loading.png",
+    "docs/tests/frontend/phase-03/login-offline.png",
+    "docs/tests/frontend/phase-03/login-validation-mobile.png",
+    "docs/tests/frontend/phase-03/nfr01-local.json",
+    "docs/tests/frontend/phase-03/screen-1-reception.png",
+    "docs/tests/frontend/phase-03/screen-2-ticket.png",
+    "docs/tests/frontend/phase-03/screen-3-approval.png",
+    "docs/tests/frontend/phase-03/state-empty-approval.png",
+    "docs/tests/frontend/phase-03/state-empty-history.png",
+    "docs/tests/frontend/phase-03/state-empty-reception.png",
+    "docs/tests/frontend/phase-03/state-loading-approval.png",
+    "docs/tests/frontend/phase-03/state-loading-intake.png",
+    "docs/tests/frontend/phase-03/state-loading-reception.png",
+    "docs/progress/frontend/phase-03.md",
+    "docs/tests/frontend/phase-03/verification.md"
+  ],
+  "excludedSelf": "docs/tests/frontend/phase-03/file-audit.json",
+  "protectedFiles": {
+    "backendProduction": {
+      "count": 60,
+      "changed": []
+    },
+    "backendUiTestHarness": {
+      "count": 1,
+      "changed": [
+        "src/backend/scripts/ui-test.ts"
+      ]
+    },
+    "contractAndSchema": {
+      "count": 4,
+      "changed": []
+    },
+    "dependencies": {
+      "count": 5,
+      "changed": []
+    },
+    "previousEvidence": {
+      "count": 60,
+      "changed": []
+    },
+    "authFoundation": {
+      "count": 5,
+      "changed": []
+    },
+    "instructions": {
+      "count": 2,
+      "changed": []
+    },
+    "packagingAndRootScripts": {
+      "count": 7,
+      "changed": []
+    }
+  },
+  "expectedTestHarnessChange": "Only src/backend/scripts/ui-test.ts changes under backend: in-memory pagination/empty catalog fixture; production backend/config/migration/seed unchanged.",
+  "publicDataVerification": "Final real UI harness run exited 0 with UI_FIXTURE_PUBLIC_PRESERVED; 20 tests passed."
+}

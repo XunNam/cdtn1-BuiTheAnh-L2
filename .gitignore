@@ -4,8 +4,14 @@ dist/
 build/
 coverage/
 .env
+.private/
+demo-passwords.local.json
 .env.local
 .env.*.local
+.env.compose
+test-results/
+playwright-report/
+*.tsbuildinfo
 *.log
 .DS_Store
 Thumbs.db

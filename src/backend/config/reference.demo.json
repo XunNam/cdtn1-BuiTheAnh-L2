@@ -1,0 +1,94 @@
+{
+  "config_version": 1,
+  "centers": [
+    {
+      "center_id": 1,
+      "center_name": "Trung tâm demo A",
+      "is_active": true
+    },
+    {
+      "center_id": 2,
+      "center_name": "Trung tâm demo B",
+      "is_active": true
+    }
+  ],
+  "products": [
+    {
+      "product_id": 101,
+      "product_name": "Thiết bị mô phỏng 12 tháng",
+      "warranty_months": 12,
+      "is_active": true
+    },
+    {
+      "product_id": 102,
+      "product_name": "Thiết bị mô phỏng 0 tháng",
+      "warranty_months": 0,
+      "is_active": true
+    },
+    {
+      "product_id": 103,
+      "product_name": "Thiết bị mô phỏng 120 tháng",
+      "warranty_months": 120,
+      "is_active": true
+    },
+    {
+      "product_id": 104,
+      "product_name": "Thiết bị mô phỏng ngừng dùng",
+      "warranty_months": 24,
+      "is_active": false
+    }
+  ],
+  "accounts": [
+    {
+      "employee_id": 11,
+      "username": "nv_demo_a",
+      "role": "NHAN_VIEN_TIEP_NHAN",
+      "is_active": true,
+      "active_center_id": 1,
+      "allowed_center_ids": [
+        1
+      ]
+    },
+    {
+      "employee_id": 12,
+      "username": "nv_demo_b",
+      "role": "NHAN_VIEN_TIEP_NHAN",
+      "is_active": true,
+      "active_center_id": 2,
+      "allowed_center_ids": [
+        2
+      ]
+    },
+    {
+      "employee_id": 21,
+      "username": "ql_demo_a",
+      "role": "QUAN_LY_TTBH",
+      "is_active": true,
+      "active_center_id": 1,
+      "allowed_center_ids": [
+        1
+      ]
+    },
+    {
+      "employee_id": 22,
+      "username": "ql_demo_ab",
+      "role": "QUAN_LY_TTBH",
+      "is_active": true,
+      "active_center_id": 1,
+      "allowed_center_ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "employee_id": 31,
+      "username": "inactive_demo",
+      "role": "NHAN_VIEN_TIEP_NHAN",
+      "is_active": false,
+      "active_center_id": 1,
+      "allowed_center_ids": [
+        1
+      ]
+    }
+  ]
+}

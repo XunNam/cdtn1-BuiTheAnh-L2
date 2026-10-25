@@ -1,0 +1,15 @@
+{
+  "projects": [
+    "l2p6_2f208f87",
+    "l2p6clean_20261025"
+  ],
+  "user_volumes_touched": false,
+  "removed_volumes": [
+    "l2p6_2f208f87_pgdata",
+    "l2p6_2f208f87_credentials",
+    "l2p6clean_20261025_pgdata",
+    "l2p6clean_20261025_credentials"
+  ],
+  "ownership_checked": true,
+  "result": "PASS"
+}

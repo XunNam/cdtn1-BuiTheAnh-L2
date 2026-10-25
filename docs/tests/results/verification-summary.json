@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-25",
+  "baseline": {
+    "unit_http": 90,
+    "postgres_subtests": 78,
+    "postgres_runner_total": 82,
+    "fail": 0,
+    "skip": 0
+  },
+  "final": {
+    "unit_http": 94,
+    "postgres_subtests": 90,
+    "postgres_runner_total": 95,
+    "frontend_client": 12,
+    "browser": 4,
+    "fail": 0,
+    "skip": 0
+  },
+  "commands": {
+    "local": "npm test",
+    "docker": "docker compose --env-file .env.compose --profile checks run --build --rm verify"
+  },
+  "docker": {
+    "project": "l2p6_2f208f87",
+    "services_healthy": 3,
+    "api": "E01–E13 + login + CRUD PASS",
+    "browser_UI02": "PASS",
+    "restart_data_and_credentials_unchanged": true,
+    "old_token_after_restart": 401,
+    "seed_repeat_tickets_created": [
+      0,
+      0
+    ],
+    "snapshot": {
+      "tables": {
+        "customer": {
+          "count": 32,
+          "sha256": "ff1d5e19b14000871d06425eb8a84a3a98b0bdae95ddac2d5ba1a56a8f66c049"
+        },
+        "device": {
+          "count": 32,
+          "sha256": "5321603b88451a1de9cd40d013d9204d3db86a71363edd421a411252270151da"
+        },
+        "issue_category": {
+          "count": 6,
+          "sha256": "ecaf59dce405d43c45f71ac5321256a2cd3927a1f0ddb5306a811835b4326cc8"
+        },
+        "ticket": {
+          "count": 202,
+          "sha256": "ba1ed674694ea1d4f82c51972781bdf8573745b0602ef54551657b75a1c53dd0"
+        },
+        "ticket_status_log": {
+          "count": 202,
+          "sha256": "5942d6f42cdd13799c403d06969152bbdd0e90a1c3a7899a54358cef80465955"
+        },
+        "ticket_communication": {
+          "count": 33,
+          "sha256": "f28c436dd6858e981dbbe1589db1d8c059f2f5419375609e7ba23b41121280f9"
+        },
+        "schema_migration": {
+          "count": 2,
+          "sha256": "9fbba39ebbf806a4913baa6133133293410905096a6537ee8979ecf5f2c26da9"
+        }
+      },
+      "sequence": {
+        "last_value": "1000001",
+        "is_called": true
+      },
+      "postgres": "18.6",
+      "node": "v24.22.1"
+    }
+  },
+  "clean_room": {
+    "copy_method": "filesystem only; no Git",
+    "distributed_files_at_copy": 133,
+    "excluded": [
+      ".git",
+      ".env* except .env.example",
+      ".private",
+      "node_modules",
+      "dist",
+      ".next",
+      "source PDFs/output"
+    ],
+    "project": "l2p6clean_20261025",
+    "ports": [
+      3140,
+      3141
+    ],
+    "startup_commands_after_preparation": 2,
+    "build_startup": "PASS",
+    "login_api_crud": "PASS",
+    "browser_UI02": "PASS",
+    "one_command_test": "PASS",
+    "second_run_migration_seed": "PASS",
+    "persistence_and_credential_hash_match": true,
+    "old_token_after_restart": 401,
+    "snapshot": {
+      "tables": {
+        "customer": {
+          "count": 32,
+          "sha256": "0d3518950bcc1f37ff8fd8504fcc72ec299e2e49d47e3dbde529db2f4d5e1438"
+        },
+        "device": {
+          "count": 32,
+          "sha256": "c833162a90d621241ae92172c66f4955a6954b8725a461ae5ca6ef00370ee7b0"
+        },
+        "issue_category": {
+          "count": 6,
+          "sha256": "ecaf59dce405d43c45f71ac5321256a2cd3927a1f0ddb5306a811835b4326cc8"
+        },
+        "ticket": {
+          "count": 202,
+          "sha256": "be2a7902cc6fb213da7ca5dc050a025c2246714fda97ef69689c043684d23b88"
+        },
+        "ticket_status_log": {
+          "count": 202,
+          "sha256": "22fd18fb7e30e6f6230447fa1b484673aae7668ceaf151ae10850b6bd980af7b"
+        },
+        "ticket_communication": {
+          "count": 33,
+          "sha256": "2dd683bb67839c6b367df35939a4e3fdec3ccffc55c58743fe0cca5b1674f626"
+        },
+        "schema_migration": {
+          "count": 2,
+          "sha256": "9a9f5e668d3077bc9077c76a02d06b5393c7af97cf5c3bec3581dc49dd7b9bdf"
+        }
+      },
+      "sequence": {
+        "last_value": "1000001",
+        "is_called": true
+      },
+      "postgres": "18.6",
+      "node": "v24.22.1"
+    }
+  },
+  "initializer_invalid_credential": {
+    "result": "PASS",
+    "actual": "CONFIGURATION_ERROR, nonzero exit, no API server"
+  },
+  "backend_npm_audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "notes": [
+    "Docker restart --wait unsupported in this Compose version; used restart then up -d --wait; clean-room used down/up retaining volumes.",
+    "Additional UI evidence screenshots after final npm test: 4/4 rerun PASS; no runtime code change.",
+    "Test-only ql_empty account/center3 exists only in isolated UI fixture, not production config."
+  ]
+}

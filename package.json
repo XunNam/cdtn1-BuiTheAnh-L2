@@ -1,0 +1,13 @@
+{
+  "name": "mekong-mobile-l2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm ci --prefix src/backend && npm ci --prefix src/frontend",
+    "test": "node --env-file-if-exists=src/backend/.env scripts/test-all.mjs",
+    "test:ui": "node --env-file-if-exists=src/backend/.env src/backend/scripts/ui-test.ts",
+    "backend": "npm --prefix src/backend run dev",
+    "frontend": "npm --prefix src/frontend run dev"
+  },
+  "engines": { "node": ">=24.18.0" }
+}

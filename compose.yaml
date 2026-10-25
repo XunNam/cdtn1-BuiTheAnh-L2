@@ -1,0 +1,69 @@
+name: mekong-l2
+services:
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: mekong-mobile-l2
+      POSTGRES_USER: ${COMPOSE_DB_USER:?Prepare .env.compose}
+      POSTGRES_PASSWORD: ${COMPOSE_DB_PASSWORD:?Prepare .env.compose}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d mekong-mobile-l2"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  backend:
+    build:
+      context: .
+      target: backend
+    environment: &backend-env
+      L2_DEPLOYMENT: compose
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_NAME: mekong-mobile-l2
+      DB_USER: ${COMPOSE_DB_USER:?Prepare .env.compose}
+      DB_PASSWORD: ${COMPOSE_DB_PASSWORD:?Prepare .env.compose}
+      PORT: "3001"
+    ports:
+      - "127.0.0.1:${L2_BACKEND_PORT:-3001}:3001"
+    volumes:
+      - credentials:/app/.private
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "dist/healthcheck.js"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 10s
+  frontend:
+    build:
+      context: .
+      target: frontend
+    environment:
+      L2_API_PROXY_TARGET: http://backend:3001
+    ports:
+      - "127.0.0.1:${L2_FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  verify:
+    profiles: ["checks"]
+    build:
+      context: .
+      target: verify
+    environment:
+      <<: *backend-env
+    depends_on:
+      database:
+        condition: service_healthy
+volumes:
+  pgdata:
+  credentials:
