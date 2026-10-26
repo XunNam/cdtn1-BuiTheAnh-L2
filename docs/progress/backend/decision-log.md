@@ -22,7 +22,7 @@ Mọi hàng mang trạng thái dưới đây được chấp thuận bởi **sin
 
 | Mã | Lựa chọn đã chốt và tác động | Căn cứ / phân loại | Trạng thái |
 | --- | --- | --- | --- |
-| DEP-A | Sáu bảng nghiệp vụ PostgreSQL; products/centers/accounts/membership từ config tin cậy. Chỉ thêm tối đa một schema_migration kỹ thuật ở Phase 2; không bảng employee/product/service_center/employee_center/session/token và không API quản trị | DESIGN theo yêu cầu sinh viên; FK lõi vẫn giữ, tham chiếu phụ trợ do service/startup kiểm | **ĐÃ ĐƯỢC SINH VIÊN CHẤP THUẬN** |
+| DEP-A (baseline; phần center được SC-DB thay thế) | Sáu bảng nghiệp vụ lõi PostgreSQL; baseline products/centers/accounts/membership từ config tin cậy. Chỉ thêm tối đa một schema_migration kỹ thuật ở Phase 2; không bảng employee/product/service_center/employee_center/session/token và không API quản trị | DESIGN theo yêu cầu sinh viên; FK lõi vẫn giữ, tham chiếu phụ trợ do service/startup kiểm | **ĐÃ ĐƯỢC SINH VIÊN CHẤP THUẬN** |
 | DD02 | Hết hạn vẫn tạo phiếu 201 khi dữ liệu khác hợp lệ: HET_BAO_HANH/KHONG_CAN/can_proceed=true. Không cần duyệt và không suy ra miễn phí; thu phí/sửa chữa ngoài L2 | DESIGN; CS Mục 3 tr. 5, biểu mẫu tr. 8 có bảo hành/sửa chữa nhưng không quy định đầy đủ policy này | **ĐÃ ĐƯỢC SINH VIÊN CHẤP THUẬN** |
 | DD03 | customer.center_id là trung tâm sở hữu ban đầu, do principal server cấp; không FK config, không chuyển/chia sẻ liên trung tâm. Device theo customer; ticket.center_id riêng. Phone UNIQUE toàn cục, xung đột ngoài quyền chỉ trả 409 chung, không nhận diện hồ sơ | DESIGN thực thi SOURCE QT-14/QT-15, CS Bảng 9.1 tr. 19 | **ĐÃ ĐƯỢC SINH VIÊN CHẤP THUẬN** |
 | DD05 | Cộng tháng lịch trực tiếp tới tháng đích, clamp ngày cuối tháng; ngày hết hạn còn bảo hành, ngày sau hết hạn; thiếu ngày mua là chưa xác minh; 0 tháng chỉ còn trong ngày mua | DESIGN làm rõ SOURCE QT-05; không dùng 30 ngày/tháng, không thêm trạng thái | **ĐÃ ĐƯỢC SINH VIÊN CHẤP THUẬN** |
@@ -165,3 +165,12 @@ Sinh viên nghiệm thu Phase5 và cho phép Frontend tối thiểu, Docker, tes
 | P6-REPRO | Clean-room copy không Git, loại secret/deps/build, env và volume mới, làm đúng README hai lệnh startup | Phase6 mụcG/H, artifact verification-summary.json |
 
 Kết quả cuối tại [phase-06.md](phase-06.md). Git/commit/tag/nộp bài và xác nhận cá nhân trong AI disclosure thuộc sinh viên, không được khai PASS thay.
+
+## SC-DB — Trung tâm bảo hành lưu PostgreSQL (2026-10-25)
+
+**Đã được sinh viên giao và chốt:** chuyển trung tâm sang PostgreSQL; trong câu hỏi làm rõ chọn chỉ chuyển hai trung tâm hiện có, chưa nhập sáu trung tâm CSV. Quyết định này thay phần centers của DEP-A/TECH-07; sản phẩm/tài khoản/membership giữ config.
+
+- **DESIGN:** thêm một danh mục service_center với ID/tên/trạng thái; migration003 backfill đúng1/2, thêm hai FK từ customer/ticket, không sửa001/002 hoặc dữ liệu lõi. Tổng sáu bảng lõi + một danh mục phụ thuộc + một bảng kỹ thuật; không mở module mới.
+- **IMPLEMENTATION:** bỏ centers khỏi JSON, tăng version2; loadReference đọc repository DB, auth đọc is_active từng login/request, E08 recheck/SHARE trong transaction. Validate membership/active center lúc startup tiếp tục; tên được nạp lại khi startup. Migration/seed không ghi đè center đã sửa.
+- **Phạm vi:** không nhập dataset, không thay account/password/membership/API/frontend/SRS/ERD gốc, không Git. Căn cứ danh mục phục vụ L2 và QT-14/FR01/05/06; không tạo QT/endpoint mới.
+- **Kiểm chứng:** xem [báo cáo và kết quả thật](service-centers-postgresql.md); lịch sử các phase trước giữ nguyên.

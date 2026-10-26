@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { SessionGuard } from "../auth/session-guard";
 import { useSession } from "../auth/session-provider";
-import { TicketDetail } from "../legacy/ticket-detail";
+import { TicketDetail } from "../tickets/ticket-detail";
 
 export default function TicketDetailScreen({ id, listPath }: { id: number | null; listPath: string }) {
   return <SessionGuard><DetailWorkspace id={id} listPath={listPath} /></SessionGuard>;

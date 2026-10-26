@@ -7,7 +7,7 @@ import { runtimeConfig } from "../src/runtime-config.ts";
 import { createPool, checkDatabase, withTransaction } from "../src/db.ts";
 import { migrate } from "../src/migrate.ts";
 import { seed } from "../src/seed.ts";
-import { createAuth } from "../src/auth.ts";
+import { createDatabaseAuth } from "../src/auth.ts";
 import { createApp } from "../src/app.ts";
 import { createCustomerService } from "../src/services/customers.service.ts";
 import { createDeviceService } from "../src/services/devices.service.ts";
@@ -18,7 +18,7 @@ import { validateReference } from "../src/reference-config.ts";
 import { timestamp } from "../src/domain/business-time.ts";
 import { testIdentity, serve } from "./helpers.ts";
 
-const tables = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration"] as const;
+const tables = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration", "service_center"] as const;
 async function fingerprint(pool: Pool) {
   const result: Record<string, { count: number; hash: string }> = {};
   for (const name of tables) {
@@ -30,7 +30,7 @@ async function fingerprint(pool: Pool) {
 
 test("Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử và tranh khóa", async t => {
   const runtime = runtimeConfig(), admin = createPool(runtime);
-  let live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createAuth> | undefined, created = false;
+  let live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createDatabaseAuth> | undefined, created = false;
   const schema = "phase2_test_p4_" + process.pid + "_" + randomBytes(6).toString("hex"), pool = createPool(runtime, schema);
   let clock = new Date("2026-09-28T09:00:00+07:00").getTime();
   const now = () => new Date(clock);
@@ -42,9 +42,9 @@ test("Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử
     await admin.query('CREATE SCHEMA "' + schema + '"'); created = true;
     await migrate(pool);
     const identity = await testIdentity(); await seed(pool, identity.config);
-    auth = createAuth(identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
+    auth = createDatabaseAuth(pool, identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
     const services = { customers: createCustomerService(pool, now), devices: createDeviceService(pool, identity.config, now), now };
-    const intake = { catalog: createCatalogService(pool, identity.config), warranty: createWarrantyService(pool, now), tickets: createTicketService(pool, identity.config, now) };
+    const intake = { catalog: createCatalogService(pool, identity.config), warranty: createWarrantyService(pool, now), tickets: createTicketService(pool, now) };
     live = await serve(createApp(auth, services, intake));
     const tokens: Record<string, string> = {};
     for (const user of ["nv_demo_a", "nv_demo_b", "ql_demo_ab"]) {
@@ -140,7 +140,7 @@ test("Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử
         assert.equal((await api("GET", "/devices/" + input.device_id + "/warranty" + suffix)).status, 400);
       assert.equal((await api("GET", "/devices/9007199254740992/warranty")).status, 400);
     });
-    await t.test("P4-I05 E07 không ghi toàn bộ7 bảng/sequence, clock+07 tại ranh UTC", async () => {
+    await t.test("P4-I05 E07 không ghi toàn bộ8 bảng/sequence, clock+07 tại ranh UTC", async () => {
       const before = await fingerprint(pool), seq = (await pool.query("SELECT last_value::text,is_called FROM ticket_code_seq")).rows;
       clock = new Date("2026-09-27T17:00:00.123Z").getTime();
       const r = await api("GET", "/devices/" + base.device_id + "/warranty");
@@ -368,7 +368,7 @@ test("Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử
       const names = (await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema=current_schema() ORDER BY table_name")).rows.map(r => r.table_name);
       assert.deepEqual(names, [...tables].sort());
       const constraints = (await pool.query("SELECT count(*)::int AS n FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname=current_schema() AND c.contype='f'")).rows[0].n;
-      assert.equal(constraints, 5);
+      assert.equal(constraints, 7);
     });
     await t.test("P4-I20 E08 center2 actor12, snapshot0/120 và ngày mua tương lai bị từ chối", async () => {
       const input = await make(null, 101, "nv_demo_b");
@@ -404,7 +404,7 @@ test("Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử
         clock = new Date("2026-09-28T09:00:00+07:00").getTime();
       }
     });
-    await t.test("P4-I22 public7 bảng và sequence không đổi qua toàn bộ HTTP/PG test", async () => {
+    await t.test("P4-I22 public8 bảng và sequence không đổi qua toàn bộ HTTP/PG test", async () => {
       assert.deepEqual(await fingerprint(admin), publicBefore);
       assert.deepEqual((await admin.query("SELECT last_value::text,is_called FROM ticket_code_seq")).rows, sequenceBefore);
     });

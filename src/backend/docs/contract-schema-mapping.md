@@ -169,3 +169,9 @@ Bốn CRUD chỉ NV, QL403; token thiếu401; thiếu/sai quan hệ/ngoài quy�
 Các thuật toán/bộ dữ liệu/khóa/seed theo [kiến trúc](backend-architecture-phase-01.md); quyết định theo [decision log](../../../docs/progress/backend/decision-log.md); kết quả kiểm tĩnh tại [báo cáo Phase 1](../../../docs/progress/backend/phase-01.md).
 
 NFR01 cần 100 lượt đo UI với 200 phiếu, NFR02 cần HTTP và kiểm DB trước/sau request lỗi, NFR03 cần UI/API/DB khởi động tối đa hai lệnh sau chuẩn bị. Index, contract và đặc tả không chứng minh các NFR đã đạt. Không còn blocker thiết kế schema; kiểm PostgreSQL/API/config/migration/seed thật chưa chạy và chỉ tiếp tục khi có yêu cầu Phase 2.
+
+## SC-DB — Bổ sung sau FE-07, 2026-10-25
+
+Các bảng và mô tả DEP-A bên trên là baseline Phase1. Theo yêu cầu mới và xác nhận chỉ chuyển hai trung tâm, danh mục centers hiện được lưu trong service_center qua migration003; customer/ticket có FK mới. loadReference(file,pool) lấy centers từ repository DB và kiểm membership; JSON version2 chỉ còn products/accounts. Auth kiểm is_active DB ở login/request, E08 recheck trung tâm trong transaction.
+
+A01/E01–E13 vẫn giữ nguyên method/path/field/status/quyền; active_center_id/allowed_center_ids vẫn từ tài khoản đã xác thực, center_id hợp lệ đối chiếu DB. Không thêm endpoint quản trị hoặc lấy tên trung tâm cho frontend; phần trình bày hiện vẫn ID theo contract. Product/account/actor ID còn config, không FK mới cho chúng. Sáu bảng lõi không đổi; thêm một danh mục phụ thuộc, không nhập CSV. [Báo cáo](../../../docs/progress/backend/service-centers-postgresql.md).

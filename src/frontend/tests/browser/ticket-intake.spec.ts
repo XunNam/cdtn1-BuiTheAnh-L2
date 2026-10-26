@@ -6,7 +6,7 @@ import { createApiClient } from "../../src/lib/api-client";
 import * as dto from "../../src/lib/contracts";
 
 const fixture: { password: string; backendUrl: string; controlFile: string; statusFile: string } = JSON.parse(await readFile(process.env.L2_UI_FIXTURE!, "utf8"));
-const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-04");
+const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-07");
 await mkdir(output, { recursive: true });
 async function control(action: string, extra: Record<string, unknown> = {}) {
   const prior = JSON.parse(await readFile(fixture.statusFile, "utf8"));
@@ -186,7 +186,7 @@ test("FE04-UI06 busy khóa lựa chọn, click lặp/Back không gửi lại; re
   gate.resolve(); await expect(page.getByTestId("ticket-receipt")).toBeVisible(); expect(posts).toBe(1);
   await expect(createButton(page)).toHaveCount(0);
   await page.getByRole("link", { name: "Mở chi tiết phiếu", exact: true }).click();
-  await expect(page.getByTestId("ticket-status")).toHaveText("MOI"); await page.goBack();
+  await expect(page.getByTestId("ticket-status")).toHaveText("Mới"); await expect(page.getByTestId("ticket-status")).toHaveAttribute("data-value", "MOI"); await page.goBack();
   await expect(page).toHaveURL(/\/intake$/); expect(posts).toBe(1);
   if (await page.getByTestId("ticket-receipt").count()) await page.getByRole("button", { name: "Tiếp nhận mới", exact: true }).click();
   await expect(page.getByLabel("Số điện thoại tra cứu")).toHaveValue("");

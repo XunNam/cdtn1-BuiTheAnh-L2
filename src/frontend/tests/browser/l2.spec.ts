@@ -4,7 +4,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createApiClient } from "../../src/lib/api-client";
 const fixture = JSON.parse(await readFile(process.env.L2_UI_FIXTURE!, "utf8"));
-const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-04");
+const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-07");
 await mkdir(output, { recursive: true });
 async function login(page: Page, user: string) { await page.goto("/"); await page.getByLabel("Tên đăng nhập").fill(user); await page.getByLabel("Mật khẩu", { exact: true }).fill(fixture.passwords?.[user] ?? fixture.password); await page.getByRole("button", { name: "Đăng nhập", exact: true }).click(); await expect(page.getByRole("button", { name: "Đăng xuất" })).toBeVisible(); }
 let controlNonce = 0;
@@ -29,10 +29,10 @@ test("UI02 ba màn hình API thật: thiếu ngày mua→ticket→trao đổi→
   await page.getByLabel("Mô tả lỗi", { exact: true }).fill("Máy không nhận sạc"); await page.getByLabel("Nhóm sự cố").selectOption("3"); await page.getByLabel("Mức ưu tiên").selectOption("CAO");
   let posts = 0; page.on("request", r => { if (r.method() === "POST" && new URL(r.url()).pathname === "/api/tickets") posts++; });
   await page.getByRole("button", { name: "Tạo phiếu bảo hành", exact: true }).dblclick(); await expect(page.getByTestId("ticket-receipt")).toBeVisible(); expect(posts).toBe(1);
-  await page.getByRole("link", { name: "Mở chi tiết phiếu", exact: true }).click(); await expect(page.getByTestId("ticket-status")).toHaveText("MOI");
+  await page.getByRole("link", { name: "Mở chi tiết phiếu", exact: true }).click(); await expect(page.getByTestId("ticket-status")).toHaveText("Mới"); await expect(page.getByTestId("ticket-status")).toHaveAttribute("data-value", "MOI");
   await expect(page.getByTestId("approval-status")).toHaveText("Chờ phê duyệt"); await expect(page.getByText("Phiếu chưa có trao đổi.")).toBeVisible(); await page.screenshot({ path: resolve(output, "state-empty-history.png") });
   const code = await page.locator(".detail h3").first().textContent(), due = await page.getByTestId("due-date").textContent();
-  await page.getByLabel("Nội dung trao đổi").fill("Khách sẽ bổ sung hóa đơn"); await page.getByRole("button", { name: "Lưu trao đổi", exact: true }).click(); await expect(page.getByText("Khách sẽ bổ sung hóa đơn", { exact: true })).toBeVisible();
+  await page.getByLabel("Nội dung trao đổi").fill("Khách sẽ bổ sung hóa đơn"); await page.getByRole("button", { name: "Lưu trao đổi", exact: true }).click(); await expect(page.locator(".communication-history").getByText("Khách sẽ bổ sung hóa đơn", { exact: true })).toBeVisible();
   await page.screenshot({ path: resolve(output, "screen-2-ticket.png"), fullPage: true }); await page.getByRole("button", { name: "Đăng xuất" }).click(); await login(page, "ql_demo_a");
   const open = page.getByRole("link", { name: "Xem phiếu " + code, exact: true });
   await expect(page.getByRole("button", { name: "Làm mới danh sách" })).toBeVisible();
@@ -41,9 +41,9 @@ test("UI02 ba màn hình API thật: thiếu ngày mua→ticket→trao đổi→
     await page.getByRole("button", { name: "Trang sau", exact: true }).click();
     await expect(page.locator(".pagination").first()).toContainText("Trang " + (i + 2) + " ·");
   }
-  await open.click(); await expect(page.getByText("Khách sẽ bổ sung hóa đơn", { exact: true })).toBeVisible();
+  await open.click(); await expect(page.locator(".communication-history").getByText("Khách sẽ bổ sung hóa đơn", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Nội dung trao đổi")).toHaveCount(0); await page.getByLabel("Ghi chú phê duyệt (không bắt buộc)").fill("Cho phép tiếp tục xử lý"); await page.getByRole("button", { name: "Phê duyệt cho phép xử lý", exact: true }).click();
-  await expect(page.getByTestId("approval-status")).toHaveText("Đã phê duyệt"); await expect(page.getByTestId("ticket-status")).toHaveText("MOI"); await expect(page.getByTestId("due-date")).toHaveText(due!);
+  await expect(page.getByTestId("approval-status")).toHaveText("Đã phê duyệt"); await expect(page.getByTestId("ticket-status")).toHaveText("Mới"); await expect(page.getByTestId("ticket-status")).toHaveAttribute("data-value", "MOI"); await expect(page.getByTestId("due-date")).toHaveText(due!);
   await page.screenshot({ path: resolve(output, "screen-3-approval.png"), fullPage: true });
 });
 test("UI03 loading/empty/error/retry cả3 màn hình, tắt Backend thật rồi phục hồi", async ({ page }) => {
@@ -57,10 +57,10 @@ test("UI03 loading/empty/error/retry cả3 màn hình, tắt Backend thật rồ
   let release2!: () => void; const gate2 = new Promise<void>(r => { release2 = r; }); await page.route("**/api/issue-categories", async route => { await gate2; await route.continue(); }, { times: 1 });
   await page.getByRole("button", { name: "Ghi nhận thiết bị", exact: true }).click(); await expect(page.locator(".category-region").getByRole("status")).toContainText("Đang tải"); await page.screenshot({ path: resolve(output, "state-loading-intake.png") }); release2(); await expect(page.getByLabel("Nhóm sự cố")).toBeVisible();
   await page.getByRole("button", { name: "Bỏ chọn thiết bị", exact: true }).click(); await expect(page.getByRole("button", { name: "Chọn thiết bị UI-STATES" })).toBeVisible(); await control("pause"); await page.getByRole("button", { name: "Chọn thiết bị UI-STATES" }).click(); await expect(page.locator(".category-region").getByRole("alert", { name: "Thông báo lỗi" })).toBeVisible(); await expect(page.locator(".warranty-region").getByRole("alert", { name: "Thông báo lỗi" })).toBeVisible(); await control("resume"); await page.locator(".category-region").getByRole("button", { name: "Thử lại", exact: true }).click(); await page.locator(".warranty-region").getByRole("button", { name: "Thử lại", exact: true }).click(); await expect(page.getByLabel("Nhóm sự cố")).toBeVisible();
-  await page.getByRole("button", { name: "Đăng xuất" }).click(); await login(page, "ql_empty"); await expect(page.getByText("Không có phiếu chờ phê duyệt trong phạm vi của bạn.")).toBeVisible(); await page.screenshot({ path: resolve(output, "state-empty-approval.png") });
+  await page.getByRole("button", { name: "Đăng xuất" }).click(); await login(page, "ql_empty"); await expect(page.getByText("Chưa có phiếu chưa xác minh bảo hành trong phạm vi của bạn.")).toBeVisible(); await page.screenshot({ path: resolve(output, "state-empty-approval.png") });
   let release3!: () => void; const gate3 = new Promise<void>(r => { release3 = r; }); await page.route("**/api/tickets?*", async route => { await gate3; await route.continue(); }, { times: 1 });
-  await page.getByLabel("Kết quả phê duyệt").selectOption("DA_PHE_DUYET"); await expect(page.getByRole("status")).toContainText("Đang tải"); await page.screenshot({ path: resolve(output, "state-loading-approval.png") }); release3(); await expect(page.getByText("Không có phiếu phù hợp bộ lọc đã phê duyệt.")).toBeVisible();
-  await control("pause"); await page.getByRole("button", { name: "Làm mới danh sách" }).click(); await expect(page.getByRole("alert", { name: "Thông báo lỗi" })).toBeVisible(); await page.screenshot({ path: resolve(output, "backend-offline.png"), fullPage: true }); await control("resume"); await page.getByRole("button", { name: "Thử lại", exact: true }).click(); await expect(page.getByText("Không có phiếu phù hợp bộ lọc đã phê duyệt.")).toBeVisible();
+  await page.getByLabel("Kết quả phê duyệt").selectOption("DA_PHE_DUYET"); await expect(page.getByRole("status")).toContainText("Đang tải"); await page.screenshot({ path: resolve(output, "state-loading-approval.png") }); release3(); await expect(page.getByText("Chưa có phiếu chưa xác minh bảo hành trong phạm vi của bạn.")).toBeVisible();
+  await control("pause"); await page.getByRole("button", { name: "Làm mới danh sách" }).click(); await expect(page.getByRole("alert", { name: "Thông báo lỗi" })).toBeVisible(); await page.screenshot({ path: resolve(output, "backend-offline.png"), fullPage: true }); await control("resume"); await page.getByRole("button", { name: "Thử lại", exact: true }).click(); await expect(page.getByText("Chưa có phiếu chưa xác minh bảo hành trong phạm vi của bạn.")).toBeVisible();
 });
 test("UI04 quyền/center,401 thực sau restart, token memory và viewport375px", async ({ page }) => {
   const other = createApiClient({ baseUrl: fixture.backendUrl + "/api" }); await other.login("nv_demo_b", fixture.password);
@@ -129,14 +129,14 @@ test("FE01-UI02 mở URL chi tiết chưa login, quay lại đúng phiếu; logo
   await page.getByLabel("Mật khẩu", { exact: true }).fill(fixture.password);
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
   await expect(page).toHaveURL(new RegExp("/tickets/" + ticket.ticket_id + "$"));
-  await expect(page.getByTestId("ticket-status")).toHaveText("MOI");
+  await expect(page.getByTestId("ticket-status")).toHaveText("Mới"); await expect(page.getByTestId("ticket-status")).toHaveAttribute("data-value", "MOI");
   await expect(page.getByText("Kiểm tra điều hướng chi tiết", { exact: true })).toBeVisible();
   // Tạo lịch sử điều hướng client thật trước khi kiểm nút Back sau logout.
   await page.getByRole("link", { name: "← Tiếp nhận mới", exact: true }).click();
   await page.getByRole("link", { name: "Mở phiếu bằng ID", exact: true }).click();
   await page.getByLabel("ID phiếu", { exact: true }).fill(String(ticket.ticket_id));
   await page.getByRole("button", { name: "Mở phiếu", exact: true }).click();
-  await expect(page.getByTestId("ticket-status")).toHaveText("MOI");
+  await expect(page.getByTestId("ticket-status")).toHaveText("Mới"); await expect(page.getByTestId("ticket-status")).toHaveAttribute("data-value", "MOI");
   await page.getByRole("button", { name: "Đăng xuất" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.locator(".detail")).toHaveCount(0);

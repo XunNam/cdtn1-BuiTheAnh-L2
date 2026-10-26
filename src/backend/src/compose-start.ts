@@ -17,7 +17,8 @@ async function main() {
       // Một khóa startup bao quanh cả credential/migrate/seed, kể cả nhiều initializer.
       await lock.query("SELECT pg_advisory_lock(hashtext(current_database()),hashtext('l2-compose-start'))");
       try {
-        const reference = await loadReference(config.referenceFile);
+        await migrate(pool);
+        const reference = await loadReference(config.referenceFile, pool);
         let exists = true;
         try { await access(config.credentialFile); } catch (error) {
           if (!(error instanceof Error) || !("code" in error) || error.code !== "ENOENT") throw error;
@@ -25,7 +26,7 @@ async function main() {
         }
         if (exists) await loadCredentials(config.credentialFile, reference);
         else await setupCredentials(config.credentialFile, reference);
-        await migrate(pool); await seed(pool, reference);
+        await seed(pool, reference);
       } finally { await lock.query("SELECT pg_advisory_unlock(hashtext(current_database()),hashtext('l2-compose-start'))"); }
     } finally { lock.release(); }
   } finally { await pool.end(); }

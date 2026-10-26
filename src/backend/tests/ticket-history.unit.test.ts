@@ -84,14 +84,14 @@ test("P5-U08 communication DTO chỉ5 field, số actor/ID và timestamp offset"
 });
 test("P5-U09 E09 service truyền scope/filter/page nguyên vẹn, NV bị chặn trước repository", async () => {
   let called = 0;
-  const service = createTicketService({} as Pool, config, () => at, { ...ticketRepository,
+  const service = createTicketService({} as Pool, () => at, { ...ticketRepository,
     list: async (_db, centers, filter, page, size) => { called++; assert.deepEqual(centers, [1, 2]); assert.equal(filter, "DA_PHE_DUYET"); assert.equal(page, 2); assert.equal(size, 10); return { total: "42", tickets: [] }; },
   });
   await assert.rejects(service.list(nv, "DA_PHE_DUYET", 2, 10), code("ROLE_FORBIDDEN")); assert.equal(called, 0);
   assert.deepEqual(await service.list(ql, "DA_PHE_DUYET", 2, 10), { data: [], meta: { page: 2, size: 10, total: 42 } });
 });
 test("P5-U10 E10 service không gọi clock/domain tính lại, missing404; snapshot cũ", async () => {
-  const service = createTicketService({} as Pool, config, () => { throw new Error("Không được đọc clock khi xem lịch sử"); }, { ...ticketRepository,
+  const service = createTicketService({} as Pool, () => { throw new Error("Không được đọc clock khi xem lịch sử"); }, { ...ticketRepository,
     detail: async (_db, id, centers) => { assert.deepEqual(centers, [1]); return id === 100 ? row : undefined; },
   });
   const before = JSON.stringify(row), dto = await service.detail(nv, 100);
@@ -100,7 +100,7 @@ test("P5-U10 E10 service không gọi clock/domain tính lại, missing404; snap
 });
 test("P5-U11 E11 dùng cùng transaction/client, server actor/time, không log/SLA update", async () => {
   const f = fakePool(); const seen: string[] = [];
-  const service = createTicketService(f.pool, config, () => at, { ...ticketRepository,
+  const service = createTicketService(f.pool, () => at, { ...ticketRepository,
     lock: async (db, id, centers) => { assert.equal(db, f.client); assert.equal(id, 100); assert.deepEqual(centers, [1, 2]); seen.push("LOCK"); return row; },
     approve: async (db, id, centers, actor, time, note) => { assert.equal(db, f.client); assert.equal(actor, 22); assert.equal(time, at); assert.equal(note, "ok"); seen.push("GUARDED_UPDATE"); return { ...row, approved_by: String(actor), approved_at: time, approval_status: "DA_PHE_DUYET", approval_note: note }; },
     initialLog: async () => { assert.fail("Không ghi log khi phê duyệt"); },
@@ -112,7 +112,7 @@ test("P5-U11 E11 dùng cùng transaction/client, server actor/time, không log/S
 test("P5-U12 E11 role/scope/đã duyệt/guard0/failure rollback, không overwrite", async () => {
   for (const mode of ["missing", "approved", "guard", "error"] as const) {
     const f = fakePool(); let updates = 0;
-    const service = createTicketService(f.pool, config, () => at, { ...ticketRepository,
+    const service = createTicketService(f.pool, () => at, { ...ticketRepository,
       lock: async () => mode === "missing" ? undefined : mode === "approved" ? { ...row, approval_status: "DA_PHE_DUYET" } : row,
       approve: async () => { updates++; if (mode === "error") throw new Error("private database detail"); return undefined; },
     });
@@ -122,7 +122,7 @@ test("P5-U12 E11 role/scope/đã duyệt/guard0/failure rollback, không overwri
   }
 });
 test("P5-U13 E12 empty khác404, scope/page; NV/QL đọc không clock hoặc ghi", async () => {
-  const service = createTicketService({} as Pool, config, () => { throw new Error("read clock"); }, ticketRepository, { ...communicationRepository,
+  const service = createTicketService({} as Pool, () => { throw new Error("read clock"); }, ticketRepository, { ...communicationRepository,
     list: async (_db, id, centers, page, size) => { assert.equal(page, 1); assert.equal(size, 20); assert.ok(centers.includes(1)); return { ticket_id: id === 100 ? "100" : null, total: "0", communications: [] }; },
   });
   for (const actor of [nv, ql]) {
@@ -132,7 +132,7 @@ test("P5-U13 E12 empty khác404, scope/page; NV/QL đọc không clock hoặc gh
 });
 test("P5-U14 E13 NV ghi khi chờ duyệt, QL403, actor/time server và giữ ticket", async () => {
   const f = fakePool(), before = JSON.stringify(row);
-  const service = createTicketService(f.pool, config, () => at, { ...ticketRepository, lock: async (db) => { assert.equal(db, f.client); return row; } }, { ...communicationRepository,
+  const service = createTicketService(f.pool, () => at, { ...ticketRepository, lock: async (db) => { assert.equal(db, f.client); return row; } }, { ...communicationRepository,
     insert: async (db, id, content, actor, time) => { assert.equal(db, f.client); assert.equal(actor, 11); assert.equal(time, at); return { communication_id: "101", ticket_id: String(id), content, created_by: String(actor), created_at: time }; },
   });
   await assert.rejects(service.communicate(ql, 100, "x"), code("ROLE_FORBIDDEN")); assert.deepEqual(f.calls, []);
@@ -142,7 +142,7 @@ test("P5-U14 E13 NV ghi khi chờ duyệt, QL403, actor/time server và giữ ti
 test("P5-U15 E13 missing/failure rollback và lỗi contract404/409/500 không detail", async () => {
   for (const missing of [true, false]) {
     const f = fakePool();
-    const service = createTicketService(f.pool, config, () => at, { ...ticketRepository, lock: async () => missing ? undefined : row }, { ...communicationRepository,
+    const service = createTicketService(f.pool, () => at, { ...ticketRepository, lock: async () => missing ? undefined : row }, { ...communicationRepository,
       insert: async () => { throw new Error("raw SQL and private detail"); },
     });
     await assert.rejects(service.communicate(nv, 100, "ok"), (error: unknown) => {

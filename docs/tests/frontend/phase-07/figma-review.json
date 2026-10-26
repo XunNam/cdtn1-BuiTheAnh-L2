@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-10-25T09:36:07.904Z",
+  "fileName": "Mekong Mobile - L2 - 3 Wireframe tĩnh",
+  "fileKey": "IYbByIdGl6ksmlp1Yvxld7",
+  "page": "14:2",
+  "liveProbe": {
+    "success": true,
+    "latencyMs": 15,
+    "transport": "desktop_bridge"
+  },
+  "componentSearch": {
+    "total": 0
+  },
+  "rediscoveredFrames": [
+    {
+      "id": "14:6",
+      "name": "WF01 • Danh sách phiếu bảo hành",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "14:158",
+      "name": "WF02 • Tiếp nhận và tạo phiếu",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "14:268",
+      "name": "WF03 • Chi tiết và phê duyệt",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "screenshots": {
+    "scale": 0.75,
+    "source": "desktop_bridge",
+    "inspected": true
+  },
+  "writesToFigma": false,
+  "limits": [
+    "Đánh giá cấu trúc/thứ bậc và khả dụng; không đo pixel parity.",
+    "Responsive/login do dự án đề xuất; giữ GAP-01–10 theo API."
+  ]
+}

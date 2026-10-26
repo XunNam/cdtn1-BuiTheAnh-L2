@@ -8,12 +8,83 @@ import { validateLogin } from "../src/lib/login-validation.ts";
 import { customerFields, deviceFields, hasFieldErrors, normalizeIntakePhone, serialIssue } from "../src/lib/intake-validation.ts";
 import { ticketFields, ticketPriority, ticketServerFields, uncertainTicketWrite } from "../src/lib/ticket-validation.ts";
 import { formatTimestamp } from "../src/lib/date-time.ts";
+import { lastTicketPage, ticketListQuery, ticketListSelection } from "../src/lib/ticket-list-query.ts";
+import { actionFieldIssue, actionTextIssue, approvalApplicable, checkedApproval, uncertainAction } from "../src/lib/ticket-action-validation.ts";
 
 // Các key/nullability lấy từ response mẫu API v0.1 E01/E08/E10, không phải mock production.
 const customer = { customer_id: 1024, full_name: "Nguyễn Văn Minh", phone: "085****105", address: null, created_at: "2026-09-01T10:00:00+07:00" };
 const ticket = { ticket_id: 88232, ticket_code: "BH-000232/2026", customer_id: 1024, device_id: 3312, center_id: 2, issue_desc: "Máy không nhận sạc", category_id: 3, priority: "CAO", status: "MOI", received_at: "2026-09-28T09:00:00+07:00", due_date: "2026-09-29T09:00:00+07:00", assessed_on: "2026-09-28", purchase_date_snapshot: null, warranty_months_snapshot: 12, warranty_expires_on: null, warranty_status: "CHUA_XAC_MINH", approval_status: "CHO_PHE_DUYET", approved_by: null, approved_at: null, approval_note: null, can_proceed: false };
 const session = () => ({ access_token: randomBytes(32).toString("base64url"), token_type: "Bearer", expires_in: 3600, expires_at: "2026-09-28T10:00:00+07:00", principal: { employee_id: 11, role: "NHAN_VIEN_TIEP_NHAN", active_center_id: 2, allowed_center_ids: [2] } });
 const response = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+
+test("F-U40 trao đổi trim1–2000 code point, không normalize và chặn NUL/surrogate", () => {
+  for (const value of ["x", " 😀 ", "😀".repeat(2000), "e\u0301".repeat(1000)]) assert.equal(actionTextIssue(value, "content"), undefined);
+  for (const value of ["", " \t\n\u00a0", "😀".repeat(2001), "e\u0301".repeat(1000) + "x", "x\0", "\ud800", "\udc00"]) assert.ok(actionTextIssue(value, "content"));
+});
+
+test("F-U41 note tùy chọn, biên1000/1001 Unicode, khoảng trắng bỏ trống hợp lệ", () => {
+  for (const value of ["", " \t\n", "😀".repeat(1000), "e\u0301".repeat(500)]) assert.equal(actionTextIssue(value, "note"), undefined);
+  for (const value of ["😀".repeat(1001), "e\u0301".repeat(500) + "x", "\0", "\ud800"]) assert.ok(actionTextIssue(value, "note"));
+});
+
+test("F-U42 action duyệt chỉ có khi đủ3 điều kiện từ E10", () => {
+  const pending = { status: "MOI", warranty_status: "CHUA_XAC_MINH" as const, approval_status: "CHO_PHE_DUYET" as const };
+  assert.equal(approvalApplicable(pending), true);
+  for (const patch of [{ status: "DA_PHAN_CONG" }, { warranty_status: "CON_BAO_HANH" as const }, { approval_status: "DA_PHE_DUYET" as const }, { approval_status: "KHONG_CAN" as const }]) assert.equal(approvalApplicable({ ...pending, ...patch }), false);
+});
+
+test("F-U43 E11 xác nhận đúng ticket/trạng thái/metadata, không tự đổi snapshot", () => {
+  const approved = { ticket_id: 88232, status: "MOI", warranty_status: "CHUA_XAC_MINH" as const, approval_status: "DA_PHE_DUYET" as const, approved_by: 21, approved_at: "2026-09-28T10:00:00+07:00", approval_note: null, can_proceed: true };
+  assert.equal(checkedApproval(approved, 88232), approved);
+  for (const patch of [{ ticket_id: 1 }, { status: "DANG_XU_LY" }, { approved_by: null }, { approved_at: null }, { can_proceed: false }, { warranty_status: "CON_BAO_HANH" as const }]) assert.throws(() => checkedApproval({ ...approved, ...patch }, 88232), dto.ContractError);
+  assert.equal("due_date" in approved, false);
+});
+
+test("F-U44 lỗi field và kết quả ghi chưa xác định phân biệt validation/quyền/xung đột", () => {
+  assert.equal(actionFieldIssue(new ApiError(400, "VALIDATION_FAILED", "Lỗi", { content: "Sai nội dung" }), "content"), "Sai nội dung");
+  assert.equal(actionFieldIssue(new ApiError(409, "CONFLICT", "Lỗi", { note: "Không dùng" }), "note"), undefined);
+  for (const error of [new dto.ContractError(), new ApiError(0, "NETWORK_ERROR", "Lỗi"), new ApiError(500, "INTERNAL_ERROR", "Lỗi")]) assert.equal(uncertainAction(error), true);
+  for (const status of [400, 401, 403, 404, 409]) assert.equal(uncertainAction(new ApiError(status, "REJECTED", "Lỗi")), false);
+  assert.equal(uncertainAction(new ApiError(0, "STALE_REQUEST", "Lỗi")), false);
+});
+
+test("F-U45 E11 chỉ note và E13 chỉ content, actor/time lấy đúng response", async () => {
+  const calls: { url: string; body: unknown }[] = [];
+  const approved = { ticket_id: 88232, status: "MOI", warranty_status: "CHUA_XAC_MINH", approval_status: "DA_PHE_DUYET", approved_by: 21, approved_at: "2026-09-28T10:00:00+07:00", approval_note: null, can_proceed: true };
+  const message = { communication_id: 4, ticket_id: 88232, content: "Trao đổi", created_at: "2026-09-28T10:01:00+07:00", created_by: 11 };
+  const api = createApiClient({ baseUrl: "http://example.test/api", transport: async (url, init) => { calls.push({ url: String(url), body: JSON.parse(String(init?.body)) }); return response({ data: calls.length === 1 ? approved : message }, calls.length === 1 ? 200 : 201); } });
+  assert.deepEqual(await api.approve(88232, null), approved);
+  assert.deepEqual(await api.communicate(88232, "Trao đổi"), message);
+  assert.deepEqual(calls, [{ url: "http://example.test/api/tickets/88232/warranty-approval", body: { note: null } }, { url: "http://example.test/api/tickets/88232/communications", body: { content: "Trao đổi" } }]);
+});
+
+test("F-U36 query hàng chờ chỉ nhận enum/page an toàn, link quay lại không nhận URL tùy ý", () => {
+  assert.deepEqual(ticketListSelection("DA_PHE_DUYET", "12"), { filter: "DA_PHE_DUYET", page: 12 });
+  for (const page of [undefined, null, "0", "-1", "01", "1.5", "9007199254740992", ["1", "2"]]) assert.equal(ticketListSelection("CHO_PHE_DUYET", page).page, 1);
+  for (const filter of [null, "ALL", "https://example.test", ["DA_PHE_DUYET"]]) assert.equal(ticketListSelection(filter, "2").filter, "CHO_PHE_DUYET");
+  const selection = ticketListSelection("DA_PHE_DUYET", "2");
+  assert.equal(ticketListQuery(selection.filter, selection.page), "approval_status=DA_PHE_DUYET&page=2");
+});
+
+test("F-U37 trang cuối tính từ total/size: rỗng, đủ trang và trang dư1", () => {
+  for (const [total, size, expected] of [[0, 10, 1], [1, 10, 1], [10, 10, 1], [11, 10, 2], [20, 10, 2], [21, 10, 3], [100, 1, 100]]) assert.equal(lastTicketPage(total, size), expected);
+});
+
+test("F-U38 E09 summary không cần field ngoài contract, query size1 để đối chiếu empty", async () => {
+  const summary = dto.summary(ticket), calls: string[] = [];
+  const api = createApiClient({ baseUrl: "http://example.test/api", transport: async url => { calls.push(String(url)); return response({ data: [summary], meta: { page: 2, size: 1, total: 12 } }); } });
+  const result = await api.tickets("DA_PHE_DUYET", 2, 1);
+  assert.deepEqual(calls, ["http://example.test/api/tickets?approval_status=DA_PHE_DUYET&page=2&size=1"]);
+  assert.deepEqual(result.data[0], summary); assert.equal("priority" in result.data[0], false); assert.equal("customer" in result.data[0], false);
+});
+
+test("F-U39 E12 phân trang giữ đúng ID/actor/thứ tự response và không tự kéo E10", async () => {
+  const items = [21, 22].map(id => ({ communication_id: id, ticket_id: 88232, content: "Trao đổi " + id, created_at: "2026-09-28T10:00:00+07:00", created_by: 11 }));
+  const calls: string[] = [];
+  const api = createApiClient({ baseUrl: "http://example.test/api", transport: async url => { calls.push(String(url)); return response({ data: items, meta: { page: 3, size: 10, total: 22 } }); } });
+  assert.deepEqual(await api.communications(88232, 3), { data: items, meta: { page: 3, size: 10, total: 22 } });
+  assert.deepEqual(calls, ["http://example.test/api/tickets/88232/communications?page=3&size=10"]);
+});
 
 test("F-U35 timestamp hiển thị dd/MM/yyyy HH:mm tại Việt Nam, giữ đúng biên00:00", () => {
   assert.equal(formatTimestamp("2026-10-06T00:00:00.000+07:00"), "06/10/2026 00:00");

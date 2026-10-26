@@ -6,7 +6,7 @@ import { runtimeConfig } from "../src/runtime-config.ts";
 import { createPool, checkDatabase, withTransaction } from "../src/db.ts";
 import { migrate } from "../src/migrate.ts";
 import { seed } from "../src/seed.ts";
-import { createAuth } from "../src/auth.ts";
+import { createDatabaseAuth } from "../src/auth.ts";
 import { createApp } from "../src/app.ts";
 import { createCustomerService } from "../src/services/customers.service.ts";
 import { createDeviceService } from "../src/services/devices.service.ts";
@@ -16,7 +16,7 @@ import { testIdentity, serve } from "./helpers.ts";
 async function fingerprint(pool: Pool, tables: readonly string[]) {
   const result: Record<string, string> = {};
   for (const name of tables) {
-    assert.match(name, /^(customer|device|issue_category|ticket|ticket_status_log|ticket_communication|schema_migration)$/);
+    assert.match(name, /^(customer|device|issue_category|ticket|ticket_status_log|ticket_communication|schema_migration|service_center)$/);
     const rows = (await pool.query("SELECT to_jsonb(t) AS value FROM " + name + " t")).rows.map(r => JSON.stringify(r.value)).sort();
     result[name] = createHash("sha256").update(JSON.stringify(rows)).digest("hex");
   }
@@ -25,12 +25,12 @@ async function fingerprint(pool: Pool, tables: readonly string[]) {
 test("Phase 3 — HTTP + PostgreSQL thật, dữ liệu và concurrency cách ly", async t => {
   const runtime = runtimeConfig(), admin = createPool(runtime);
   const info = await checkDatabase(admin); assert.equal(info.can_create_schema, true);
-  const publicTables = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration"];
+  const publicTables = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration", "service_center"];
   const publicBefore = await fingerprint(admin, publicTables);
   const schema = "phase2_test_p3_" + process.pid + "_" + randomBytes(6).toString("hex");
   const pool = createPool(runtime, schema);
   let created = false, live: Awaited<ReturnType<typeof serve>> | undefined;
-  let auth: ReturnType<typeof createAuth> | undefined;
+  let auth: ReturnType<typeof createDatabaseAuth> | undefined;
   let clock = new Date("2026-10-24T09:00:00+07:00").getTime();
   const now = () => new Date(clock);
   try {
@@ -39,7 +39,7 @@ test("Phase 3 — HTTP + PostgreSQL thật, dữ liệu và concurrency cách ly
     await migrate(pool);
     const identity = await testIdentity();
     await seed(pool, identity.config);
-    auth = createAuth(identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
+    auth = createDatabaseAuth(pool, identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
     live = await serve(createApp(auth, { customers: createCustomerService(pool, now), devices: createDeviceService(pool, identity.config, now), now }));
     const tokens: Record<string, string> = {};
     for (const name of ["nv_demo_a", "nv_demo_b", "ql_demo_a", "ql_demo_ab"]) {

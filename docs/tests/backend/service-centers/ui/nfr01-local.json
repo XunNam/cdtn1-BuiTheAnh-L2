@@ -1,0 +1,525 @@
+{
+  "measuredAt": "2026-10-25T13:41:52.325Z",
+  "node": "v24.18.0",
+  "postgres": "18.6",
+  "cpu": "Intel(R) Core(TM) i9-14900HX",
+  "logicalCpus": 32,
+  "memoryBytes": 33959649280,
+  "os": "win32 10.0.26300",
+  "ticketCount": 200,
+  "browser": "156.0.8078.4",
+  "mode": "Next production / same-origin proxy / real Express+PostgreSQL; click handler to committed DOM plus2 animation frames",
+  "warmup": 1,
+  "count": 100,
+  "passed": 100,
+  "failed": 0,
+  "percentage": 100,
+  "p50": 47.100000001490116,
+  "p95": 48.399999998509884,
+  "max": 49,
+  "thresholdMs": 1500,
+  "expectedAtLeast": 95,
+  "result": "PASS",
+  "samples": [
+    {
+      "index": 1,
+      "kind": "existing",
+      "ms": 46.100000001490116
+    },
+    {
+      "index": 2,
+      "kind": "missing",
+      "ms": 47.79999999701977
+    },
+    {
+      "index": 3,
+      "kind": "existing",
+      "ms": 46
+    },
+    {
+      "index": 4,
+      "kind": "missing",
+      "ms": 45.29999999701977
+    },
+    {
+      "index": 5,
+      "kind": "existing",
+      "ms": 46.599999994039536
+    },
+    {
+      "index": 6,
+      "kind": "missing",
+      "ms": 46.899999998509884
+    },
+    {
+      "index": 7,
+      "kind": "existing",
+      "ms": 47
+    },
+    {
+      "index": 8,
+      "kind": "missing",
+      "ms": 47
+    },
+    {
+      "index": 9,
+      "kind": "existing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 10,
+      "kind": "missing",
+      "ms": 47.30000000447035
+    },
+    {
+      "index": 11,
+      "kind": "existing",
+      "ms": 47.399999998509884
+    },
+    {
+      "index": 12,
+      "kind": "missing",
+      "ms": 46.899999998509884
+    },
+    {
+      "index": 13,
+      "kind": "existing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 14,
+      "kind": "missing",
+      "ms": 46.20000000298023
+    },
+    {
+      "index": 15,
+      "kind": "existing",
+      "ms": 46.70000000298023
+    },
+    {
+      "index": 16,
+      "kind": "missing",
+      "ms": 46.20000000298023
+    },
+    {
+      "index": 17,
+      "kind": "existing",
+      "ms": 46.100000001490116
+    },
+    {
+      "index": 18,
+      "kind": "missing",
+      "ms": 46.30000000447035
+    },
+    {
+      "index": 19,
+      "kind": "existing",
+      "ms": 48.70000000298023
+    },
+    {
+      "index": 20,
+      "kind": "missing",
+      "ms": 47.399999998509884
+    },
+    {
+      "index": 21,
+      "kind": "existing",
+      "ms": 47.79999999701977
+    },
+    {
+      "index": 22,
+      "kind": "missing",
+      "ms": 47.69999999552965
+    },
+    {
+      "index": 23,
+      "kind": "existing",
+      "ms": 46.600000001490116
+    },
+    {
+      "index": 24,
+      "kind": "missing",
+      "ms": 47.5
+    },
+    {
+      "index": 25,
+      "kind": "existing",
+      "ms": 47.5
+    },
+    {
+      "index": 26,
+      "kind": "missing",
+      "ms": 47.19999999552965
+    },
+    {
+      "index": 27,
+      "kind": "existing",
+      "ms": 47.29999999701977
+    },
+    {
+      "index": 28,
+      "kind": "missing",
+      "ms": 46.20000000298023
+    },
+    {
+      "index": 29,
+      "kind": "existing",
+      "ms": 47.899999998509884
+    },
+    {
+      "index": 30,
+      "kind": "missing",
+      "ms": 46.599999994039536
+    },
+    {
+      "index": 31,
+      "kind": "existing",
+      "ms": 47.69999999552965
+    },
+    {
+      "index": 32,
+      "kind": "missing",
+      "ms": 47.5
+    },
+    {
+      "index": 33,
+      "kind": "existing",
+      "ms": 46.19999999552965
+    },
+    {
+      "index": 34,
+      "kind": "missing",
+      "ms": 48.20000000298023
+    },
+    {
+      "index": 35,
+      "kind": "existing",
+      "ms": 46.5
+    },
+    {
+      "index": 36,
+      "kind": "missing",
+      "ms": 46.70000000298023
+    },
+    {
+      "index": 37,
+      "kind": "existing",
+      "ms": 48.20000000298023
+    },
+    {
+      "index": 38,
+      "kind": "missing",
+      "ms": 47.5
+    },
+    {
+      "index": 39,
+      "kind": "existing",
+      "ms": 46
+    },
+    {
+      "index": 40,
+      "kind": "missing",
+      "ms": 47.20000000298023
+    },
+    {
+      "index": 41,
+      "kind": "existing",
+      "ms": 47.30000000447035
+    },
+    {
+      "index": 42,
+      "kind": "missing",
+      "ms": 45.20000000298023
+    },
+    {
+      "index": 43,
+      "kind": "existing",
+      "ms": 46.19999999552965
+    },
+    {
+      "index": 44,
+      "kind": "missing",
+      "ms": 47.30000000447035
+    },
+    {
+      "index": 45,
+      "kind": "existing",
+      "ms": 47.5
+    },
+    {
+      "index": 46,
+      "kind": "missing",
+      "ms": 48.5
+    },
+    {
+      "index": 47,
+      "kind": "existing",
+      "ms": 48
+    },
+    {
+      "index": 48,
+      "kind": "missing",
+      "ms": 47.20000000298023
+    },
+    {
+      "index": 49,
+      "kind": "existing",
+      "ms": 47.900000005960464
+    },
+    {
+      "index": 50,
+      "kind": "missing",
+      "ms": 47.30000000447035
+    },
+    {
+      "index": 51,
+      "kind": "existing",
+      "ms": 49
+    },
+    {
+      "index": 52,
+      "kind": "missing",
+      "ms": 47.79999999701977
+    },
+    {
+      "index": 53,
+      "kind": "existing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 54,
+      "kind": "missing",
+      "ms": 47.600000001490116
+    },
+    {
+      "index": 55,
+      "kind": "existing",
+      "ms": 46.100000001490116
+    },
+    {
+      "index": 56,
+      "kind": "missing",
+      "ms": 46.69999999552965
+    },
+    {
+      "index": 57,
+      "kind": "existing",
+      "ms": 45.600000001490116
+    },
+    {
+      "index": 58,
+      "kind": "missing",
+      "ms": 48.399999998509884
+    },
+    {
+      "index": 59,
+      "kind": "existing",
+      "ms": 47.600000001490116
+    },
+    {
+      "index": 60,
+      "kind": "missing",
+      "ms": 47
+    },
+    {
+      "index": 61,
+      "kind": "existing",
+      "ms": 46.099999994039536
+    },
+    {
+      "index": 62,
+      "kind": "missing",
+      "ms": 47.79999999701977
+    },
+    {
+      "index": 63,
+      "kind": "existing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 64,
+      "kind": "missing",
+      "ms": 47.099999994039536
+    },
+    {
+      "index": 65,
+      "kind": "existing",
+      "ms": 47.5
+    },
+    {
+      "index": 66,
+      "kind": "missing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 67,
+      "kind": "existing",
+      "ms": 46.600000001490116
+    },
+    {
+      "index": 68,
+      "kind": "missing",
+      "ms": 48
+    },
+    {
+      "index": 69,
+      "kind": "existing",
+      "ms": 47
+    },
+    {
+      "index": 70,
+      "kind": "missing",
+      "ms": 48.19999999552965
+    },
+    {
+      "index": 71,
+      "kind": "existing",
+      "ms": 45.80000000447035
+    },
+    {
+      "index": 72,
+      "kind": "missing",
+      "ms": 47.5
+    },
+    {
+      "index": 73,
+      "kind": "existing",
+      "ms": 46.899999998509884
+    },
+    {
+      "index": 74,
+      "kind": "missing",
+      "ms": 47.399999998509884
+    },
+    {
+      "index": 75,
+      "kind": "existing",
+      "ms": 47.19999999552965
+    },
+    {
+      "index": 76,
+      "kind": "missing",
+      "ms": 46
+    },
+    {
+      "index": 77,
+      "kind": "existing",
+      "ms": 47.20000000298023
+    },
+    {
+      "index": 78,
+      "kind": "missing",
+      "ms": 47
+    },
+    {
+      "index": 79,
+      "kind": "existing",
+      "ms": 47.70000000298023
+    },
+    {
+      "index": 80,
+      "kind": "missing",
+      "ms": 47.399999998509884
+    },
+    {
+      "index": 81,
+      "kind": "existing",
+      "ms": 48.20000000298023
+    },
+    {
+      "index": 82,
+      "kind": "missing",
+      "ms": 47.80000000447035
+    },
+    {
+      "index": 83,
+      "kind": "existing",
+      "ms": 47.400000005960464
+    },
+    {
+      "index": 84,
+      "kind": "missing",
+      "ms": 45.80000000447035
+    },
+    {
+      "index": 85,
+      "kind": "existing",
+      "ms": 46.399999998509884
+    },
+    {
+      "index": 86,
+      "kind": "missing",
+      "ms": 46.5
+    },
+    {
+      "index": 87,
+      "kind": "existing",
+      "ms": 48.600000001490116
+    },
+    {
+      "index": 88,
+      "kind": "missing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 89,
+      "kind": "existing",
+      "ms": 47.599999994039536
+    },
+    {
+      "index": 90,
+      "kind": "missing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 91,
+      "kind": "existing",
+      "ms": 46.899999998509884
+    },
+    {
+      "index": 92,
+      "kind": "missing",
+      "ms": 47.900000005960464
+    },
+    {
+      "index": 93,
+      "kind": "existing",
+      "ms": 47.100000001490116
+    },
+    {
+      "index": 94,
+      "kind": "missing",
+      "ms": 48.399999998509884
+    },
+    {
+      "index": 95,
+      "kind": "existing",
+      "ms": 45.899999998509884
+    },
+    {
+      "index": 96,
+      "kind": "missing",
+      "ms": 46.29999999701977
+    },
+    {
+      "index": 97,
+      "kind": "existing",
+      "ms": 48.5
+    },
+    {
+      "index": 98,
+      "kind": "missing",
+      "ms": 47.099999994039536
+    },
+    {
+      "index": 99,
+      "kind": "existing",
+      "ms": 47.5
+    },
+    {
+      "index": 100,
+      "kind": "missing",
+      "ms": 46
+    }
+  ]
+}

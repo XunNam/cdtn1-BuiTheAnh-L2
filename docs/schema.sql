@@ -1,7 +1,7 @@
 -- Giai đoạn 1, 2026-10-23: baseline DDL HOÀN THÀNH VỀ THIẾT KẾ.
--- DEP-A đã được sinh viên chấp thuận ngày 2026-10-23: giữ 6 bảng lõi.
--- Trung tâm, sản phẩm, tài khoản và phạm vi truy cập dùng config tin cậy;
--- center_id và các actor ID được service đối chiếu config, KHÔNG có FK phụ trợ.
+-- DEP-A ngày 2026-10-23 giữ 6 bảng lõi; cập nhật TD-22 ngày 2026-10-25:
+-- service_center là 1 bảng danh mục phụ thuộc theo yêu cầu sinh viên.
+-- Product/account/membership giữ config; center đọc PostgreSQL và có FK.
 -- DD02/03/05/06/07/08, DEP-RANGE, AUTH và CRUD đã được sinh viên duyệt.
 -- Cấu hình/validation dùng cùng miền tháng và quy ước Unicode trong phụ lục API.
 -- schema_migration (1 bảng kỹ thuật) chỉ được tạo ở Giai đoạn 2 khi được giao.
@@ -10,12 +10,21 @@
 -- Đây không phải migration runner; không chạy lại tệp này trên DB đã có bảng.
 BEGIN;
 
+-- TD-22, dependency FR01/FR05/FR06, QT-14: danh mục trung tâm từ PostgreSQL.
+-- Migration 003 chuyển hai trung tâm demo cùng ID/tên; không nhập CSV.
+CREATE TABLE service_center (
+    center_id BIGINT PRIMARY KEY CHECK (center_id > 0),
+    center_name VARCHAR(120) NOT NULL CHECK (btrim(center_name) <> ''),
+    is_active BOOLEAN NOT NULL DEFAULT true
+);
+
 -- FR01/FR07 - UC01/UC11; QT-01, QT-02, QT-13.
 CREATE TABLE customer (
     customer_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     full_name   VARCHAR(120) NOT NULL CHECK (btrim(full_name) <> ''),
     phone       VARCHAR(20) NOT NULL UNIQUE,
-    center_id   BIGINT NOT NULL CHECK (center_id > 0), -- Config DEP-A; không FK.
+    center_id   BIGINT NOT NULL CHECK (center_id > 0)
+        CONSTRAINT fk_customer_center REFERENCES service_center(center_id) ON DELETE RESTRICT,
     address     VARCHAR(255), -- API E01/E02; Case Study mục 8, trang PDF 15.
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at  TIMESTAMPTZ,
@@ -55,7 +64,8 @@ CREATE TABLE ticket (
     ticket_code     VARCHAR(20) NOT NULL UNIQUE CHECK (btrim(ticket_code) <> ''),
     device_id       BIGINT NOT NULL REFERENCES device(device_id)
                         ON DELETE RESTRICT,
-    center_id       BIGINT NOT NULL CHECK (center_id > 0),
+    center_id       BIGINT NOT NULL CHECK (center_id > 0)
+        CONSTRAINT fk_ticket_center REFERENCES service_center(center_id) ON DELETE RESTRICT,
     received_by     BIGINT NOT NULL CHECK (received_by > 0),
     category_id     INTEGER NOT NULL REFERENCES issue_category(category_id)
                         ON DELETE RESTRICT,

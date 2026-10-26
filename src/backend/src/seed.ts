@@ -4,6 +4,7 @@ import { checkReferences } from "./reference-config.ts";
 import { checkDatabase, withTransaction } from "./db.ts";
 import { assertMigrationsCurrent } from "./migrate.ts";
 import { configurationError } from "./errors.ts";
+import { serviceCenterRepository } from "./repositories/service-centers.repository.ts";
 
 const received = "2026-09-28T09:00:00+07:00";
 const removed = "2026-09-29T09:00:00+07:00";
@@ -15,7 +16,8 @@ export async function seed(pool: Pool, config: ReferenceConfig) {
   await checkDatabase(pool, false);
   await assertMigrationsCurrent(pool);
   await checkReferences(pool, config);
-  for (const id of [1, 2]) if (!config.centers.some(c => c.center_id === id && c.is_active)) configurationError("Fixture v1 cần center demo 1/2.");
+  const centers = await serviceCenterRepository.list(pool);
+  for (const id of [1, 2]) if (!centers.some(c => c.center_id === String(id) && c.is_active)) configurationError("Fixture v1 cần center demo 1/2 đang hoạt động trong CSDL.");
   for (const [id, months] of [[101, 12], [102, 0], [103, 120]]) {
     if (!config.products.some(p => p.product_id === id && p.warranty_months === months && p.is_active)) configurationError("Fixture v1 không tương thích product config.");
   }

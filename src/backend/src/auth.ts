@@ -4,13 +4,15 @@ import type { Account, ReferenceConfig, Role } from "./reference-config.ts";
 import type { Credential } from "./credentials.ts";
 import { verifyPassword } from "./credentials.ts";
 import { AppError, configurationError } from "./errors.ts";
+import type { Pool } from "pg";
+import { serviceCenterRepository } from "./repositories/service-centers.repository.ts";
 
 export type Principal = Readonly<Pick<Account, "employee_id" | "role" | "active_center_id" | "allowed_center_ids">>;
 declare global { namespace Express { interface Request { principal?: Principal } } }
 type Session = { employeeId: number; expires: number };
 export function createAuth(
   config: ReferenceConfig, credentials: readonly Credential[],
-  options: { ttlSeconds: number; maxSessions: number; now?: () => number },
+  options: { ttlSeconds: number; maxSessions: number; now?: () => number; isCenterActive?: (id: number) => Promise<boolean> },
 ) {
   if (!Number.isSafeInteger(options.ttlSeconds) || options.ttlSeconds <= 0 || !Number.isSafeInteger(options.maxSessions) || options.maxSessions <= 0 || options.maxSessions > 100)
     configurationError("AUTH TTL/cap không hợp lệ.");
@@ -19,10 +21,12 @@ export function createAuth(
   const digest = (token: string) => createHash("sha256").update(token).digest("hex");
   const sweep = () => { const time = now(); for (const [key, session] of sessions) if (time >= session.expires) sessions.delete(key); };
   const timer = setInterval(sweep, 60000); timer.unref();
-  function principalFor(employeeId: number): Principal | undefined {
+  async function principalFor(employeeId: number): Promise<Principal | undefined> {
     const a = config.accounts.find(x => x.employee_id === employeeId);
-    if (!a?.is_active || !a.allowed_center_ids.includes(a.active_center_id)
-      || !config.centers.some(c => c.center_id === a.active_center_id && c.is_active)) return undefined;
+    if (!a?.is_active || !a.allowed_center_ids.includes(a.active_center_id)) return undefined;
+    const enabled = options.isCenterActive ? await options.isCenterActive(a.active_center_id)
+      : config.centers.some(c => c.center_id === a.active_center_id && c.is_active);
+    if (!enabled) return undefined;
     return Object.freeze({ employee_id: a.employee_id, role: a.role, active_center_id: a.active_center_id, allowed_center_ids: a.allowed_center_ids });
   }
   async function login(username: string, password: string) {
@@ -30,7 +34,7 @@ export function createAuth(
     // Dùng một hash hợp lệ làm dummy khi không có username; không báo khác lỗi credential.
     const credential = credentials.find(x => x.employee_id === account?.employee_id) ?? credentials[0];
     const validPassword = credential ? await verifyPassword(password, credential) : false;
-    const principal = account ? principalFor(account.employee_id) : undefined;
+    const principal = account ? await principalFor(account.employee_id) : undefined;
     if (!account || !validPassword || !principal) throw new AppError("INVALID_CREDENTIALS", "Thông tin đăng nhập không hợp lệ.");
     // Không await từ kiểm cap tới Map.set: ngăn login đồng thời vượt cap trong một process.
     sweep();
@@ -44,24 +48,28 @@ export function createAuth(
       expires_at: new Date(expires + 7 * 3600000).toISOString().replace("Z", "+07:00"), principal,
     };
   }
-  function authenticate(header: string | undefined): Principal {
+  async function authenticate(header: string | undefined): Promise<Principal> {
     sweep();
     const match = header?.match(/^Bearer ([A-Za-z0-9_-]{43})$/);
     const key = match ? digest(match[1]!) : undefined;
     const session = key ? sessions.get(key) : undefined;
-    const principal = session ? principalFor(session.employeeId) : undefined;
-    if (!session || !principal) {
+    const principal = session ? await principalFor(session.employeeId) : undefined;
+    // SQL có await: kiểm lại hạn/Map sau query, tránh trả phiên đã hết hạn hoặc đã đóng.
+    if (!session || !principal || now() >= session.expires || sessions.get(key!) !== session) {
       if (key) sessions.delete(key);
       throw new AppError("AUTHENTICATION_REQUIRED", "Cần đăng nhập hợp lệ.");
     }
     return principal;
   }
-  const requireAuth: RequestHandler = (req, _res, next) => {
-    try { req.principal = authenticate(req.get("authorization")); next(); } catch (error) { next(error); }
+  const requireAuth: RequestHandler = async (req, _res, next) => {
+    try { req.principal = await authenticate(req.get("authorization")); next(); } catch (error) { next(error); }
   };
   return { login, authenticate, requireAuth, sweep, sessionCount: () => sessions.size, close: () => { clearInterval(timer); sessions.clear(); } };
 }
 export type Auth = ReturnType<typeof createAuth>;
+export function createDatabaseAuth(pool: Pool, config: ReferenceConfig, credentials: readonly Credential[], options: { ttlSeconds: number; maxSessions: number; now?: () => number }): Auth {
+  return createAuth(config, credentials, { ...options, isCenterActive: id => serviceCenterRepository.isActive(pool, id) });
+}
 export function requireRole(principal: Principal, roles: readonly Role[]): void {
   if (!roles.includes(principal.role)) throw new AppError("ROLE_FORBIDDEN", "Vai trò không được phép.");
 }

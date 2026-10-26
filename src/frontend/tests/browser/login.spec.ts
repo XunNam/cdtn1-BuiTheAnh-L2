@@ -6,7 +6,7 @@ import { ApiError, createApiClient } from "../../src/lib/api-client";
 
 const fixture: { password: string; backendUrl: string; controlFile: string; statusFile: string } =
   JSON.parse(await readFile(process.env.L2_UI_FIXTURE!, "utf8"));
-const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-04");
+const output = resolve(process.env.L2_UI_OUTPUT_DIR ?? "../../docs/tests/frontend/phase-07");
 await mkdir(output, { recursive: true });
 
 async function control(action: "pause" | "resume" | "restart") {

@@ -1,6 +1,6 @@
 # Frontend L2 — Đặc tả màn hình và ánh xạ API
 
-Ngày: **25/10/2026**. Đọc cùng [kế hoạch chính](frontend-l2-implementation-plan.md) và [kế hoạch kiểm chứng](frontend-l2-verification-plan.md). Đây là đặc tả triển khai **đề xuất**, không sửa contract/SRS hoặc xác nhận các tính năng đã được hiện thực.
+Ngày: **25/10/2026**. Đọc cùng [kế hoạch chính](frontend-l2-implementation-plan.md) và [kế hoạch kiểm chứng](frontend-l2-verification-plan.md). Đây là baseline đặc tả được lập trước triển khai; không sửa contract/SRS. FE-01–07 đã hoàn thành theo phạm vi API hiện có; xem [bàn giao FE-07](../progress/frontend/phase-07.md) để phân biệt hành vi đã kiểm chứng với giới hạn GAP bên dưới.
 
 ## 1. Căn cứ dùng khi triển khai
 

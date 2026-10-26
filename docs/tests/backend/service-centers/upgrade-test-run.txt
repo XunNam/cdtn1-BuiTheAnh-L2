@@ -1,0 +1,17 @@
+▶ Trung tâm PostgreSQL: upgrade, FK, nguồn dữ liệu và trạng thái hoạt động
+  ✔ SC-I01 FK upgrade lỗi rollback toàn bộ, không sửa customer hoặc registry (11.341ms)
+  ✔ SC-I02 chuyển v2→v3 giữ customer/ID, thêm đúng hai trung tâm và FK validated (16.8167ms)
+  ✔ SC-I03 FK và CHECK: không nhận center lạ/xóa center có lịch sử/tên rỗng (180.2819ms)
+  ✔ SC-I04 đổi tên SQL được đọc từ DB, migration/seed lặp không ghi đè (173.2519ms)
+  ✔ SC-I05 DB ngừng trung tâm: login401, request cũ401, hoạt động lại cần login mới (204.0736ms)
+  ✔ SC-I06 E08 recheck trung tâm DB trước ghi, không tạo ticket/log khi ngừng (18.7444ms)
+  ✔ SC-I07 membership config phải trỏ đến trung tâm có trong DB (2.8419ms)
+✔ Trung tâm PostgreSQL: upgrade, FK, nguồn dữ liệu và trạng thái hoạt động (1195.8963ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1457.0384

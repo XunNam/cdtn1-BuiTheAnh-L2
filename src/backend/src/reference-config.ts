@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import type { Pool } from "pg";
 import { configurationError } from "./errors.ts";
 import { listReferenceIds } from "./repositories/reference.repository.ts";
+import { serviceCenterRepository } from "./repositories/service-centers.repository.ts";
 
 export type Role = "NHAN_VIEN_TIEP_NHAN" | "QUAN_LY_TTBH";
 export type Center = Readonly<{ center_id: number; center_name: string; is_active: boolean }>;
@@ -71,16 +72,24 @@ export function validateReference(input: unknown): ReferenceConfig {
   unique(accounts.map(x => x.employee_id), "employee ID"); unique(accounts.map(x => x.username), "username");
   return Object.freeze({ config_version: id(root.config_version), centers: Object.freeze(centers), products: Object.freeze(products), accounts: Object.freeze(accounts) });
 }
-export async function loadReference(file: string): Promise<ReferenceConfig> {
+export async function loadReference(file: string, pool: Pool): Promise<ReferenceConfig> {
   let input: unknown;
   try { input = JSON.parse(await readFile(file, "utf8")); } catch { configurationError("Không đọc được reference config JSON."); }
-  return validateReference(input);
+  const source = record(input);
+  exactKeys(source, ["config_version", "products", "accounts"]);
+  const rows = await serviceCenterRepository.list(pool);
+  const centers = rows.map(row => {
+    const center_id = Number(row.center_id);
+    if (!Number.isSafeInteger(center_id) || center_id <= 0) configurationError("ID trung tâm trong CSDL không hợp lệ.");
+    return { center_id, center_name: row.center_name, is_active: row.is_active };
+  });
+  return validateReference({ ...source, centers });
 }
 export async function checkReferences(pool: Pool, config: ReferenceConfig): Promise<void> {
   // Bao gồm tombstone và actor lịch sử, không lọc active/role hiện tại.
   const rows = await listReferenceIds(pool);
   const ids = {
-    center: new Set(config.centers.map(x => String(x.center_id))),
+    center: new Set((await serviceCenterRepository.list(pool)).map(x => x.center_id)),
     product: new Set(config.products.map(x => String(x.product_id))),
     account: new Set(config.accounts.map(x => String(x.employee_id))),
   };

@@ -1,4 +1,4 @@
-# Kiến trúc đã hiện thực — Backend Phase 6 / Frontend FE-01–04
+# Kiến trúc đã hiện thực — Backend Phase 6 / Frontend FE-01–06
 
 Ngày 2026-10-25. **IMPLEMENTATION** được đối chiếu source và runtime; các DD/TECH là **DESIGN**, không phải quy định nguồn mới.
 
@@ -26,6 +26,8 @@ flowchart LR
 | Login và validation hỗ trợ UX | src/frontend/src/components/screens/login-screen.tsx; src/lib/login-validation.ts; backend vẫn kiểm A01 độc lập |
 | Tiếp nhận khách hàng/thiết bị inline | src/frontend/src/components/intake/; src/lib/intake-validation.ts; E01–E05 qua API client |
 | Phân loại, preview và kết quả tạo | components/intake/classification-form.tsx, warranty-preview.tsx, ticket-receipt.tsx; src/lib/ticket-validation.ts, date-time.ts |
+| Danh sách và phần đọc phiếu/lịch sử | screens/ticket-list-screen.tsx, components/tickets/; src/lib/ticket-list-query.ts |
+| Ghi trao đổi/phê duyệt và phục hồi | components/tickets/communication-form.tsx, approval-form.tsx; lib/ticket-action-validation.ts; hooks/use-ticket-record.ts, use-communication-history.ts |
 | Khung topbar/sidebar/responsive | src/frontend/src/components/layout/app-shell.tsx, app/globals.css |
 | Màn hình và form kế thừa | src/frontend/src/components/screens/, legacy/; nhãn tại src/lib/labels.ts, trạng thái tải tại src/hooks/use-remote.ts và components/ui/read-state.tsx |
 | HTTP client và decoder DTO | src/frontend/src/lib/api-client.ts, contracts.ts |
@@ -42,7 +44,7 @@ flowchart LR
 
 Ví dụ tạo phiếu: UI thu customer/device/category/priority/description → client gửi Bearer → proxy forward → route kiểm body/quyền → ticket service khóa/recheck customer→device→category, lấy một thời điểm, domain chốt warranty/SLA → repository INSERT ticket và log cùng transaction → commit rồi response. Frontend không tính luật thay Backend. E11 khóa ticket, chỉ ghi metadata approval; E13 thêm communication, không đổi SLA/trạng thái.
 
-CSDL có customer/device/issue_category/ticket/ticket_status_log/ticket_communication và bảng **kỹ thuật** schema_migration. Không có bảng session/product/account mới. DEP-A là dependency tối thiểu đã duyệt; dữ liệu khách/phiếu thật nằm PostgreSQL.
+CSDL có sáu bảng lõi customer/device/issue_category/ticket/ticket_status_log/ticket_communication, thêm danh mục phụ thuộc service_center theo yêu cầu sau FE-07 và bảng **kỹ thuật** schema_migration. Customer/ticket có FK trung tâm. Product/account/membership giữ config; không có bảng session/product/account mới.
 
 ## Authentication và ranh giới
 
@@ -56,14 +58,26 @@ FE-03 tách CustomerSection/DeviceSection/ProductPicker: khách hàng và thiế
 
 FE-04 thay form intake kế thừa bằng ClassificationForm: E06/E07 tải và retry độc lập, validation mô tả/code point/nhóm/ưu tiên, summary không tự tính ngày/hạn. Parent quản lý draft/submitting/uncertain/created, ref khóa tức thời và fieldset khóa khách/thiết bị trong POST. Sau201 thay form bằng TicketReceipt từ response E08; chỉ mở detail khi người dùng chọn. Trước ID mà timeout/mạng/DTO lỗi có thể đã commit: giữ draft khóa, không tự POST lại. Hủy draft có xác nhận, không xóa dữ liệu E02/E04 đã lưu. Timestamp trình bày tại Asia/Ho_Chi_Minh và giữ ISO gốc trong thuộc tính time.
 
-Các route UI hiện có: `/login`, `/intake`, `/tickets`, `/tickets/[ticketId]`. QL có hàng chờ E09, NV chỉ mở ID và không gọi E09; QL không có link intake. Không thêm endpoint nghiệp vụ. Danh sách/chi tiết/phê duyệt/trao đổi tiếp tục theo FE-05/06 trong [kế hoạch frontend](plans/frontend-l2-implementation-plan.md).
+FE-05 dùng URL enum/page hợp lệ để giữ vị trí hàng chờ QL; E09 summary hiển thị trực tiếp, không N+1 E10. Empty có thể đối chiếu filter khác bằng size1; probe lỗi chỉ kết luận rỗng theo lựa chọn. Sau tải lại, page vượt meta tự về trang cuối hợp lệ. NV chỉ có form ID an toàn. E10 tách khỏi E12: chi tiết hai cột dùng snapshot/phone từ server, history lỗi hoặc chuyển trang không tải lại E10. Đổi ticket ID remount dữ liệu/note/content.
+
+FE-06 thay form ghi kế thừa bằng state riêng cho E11/E13, ref khóa submit tức thời và generation bỏ response cũ. Validation UI không thay quyền/luật server. E11 chỉ nhận200 đúng ticket/metadata mới cập nhật phần approval, giữ snapshot/hạn rồi GET E10;409/timeout phục hồi GET. E13 xác nhận201 trước khi xóa draft và giữ bản ghi response để phân biệt đã lưu với GET lỗi. Controller E12 đọc meta rồi trang cuối, không suy định danh từ content; kết quả chưa rõ thì giữ draft và chỉ cho đối chiếu GET. Controller E10 giữ dữ liệu đã xác nhận qua lần đọc lại lỗi, không làm mất thông báo thành công. Các POST không tự retry.
+
+Các route UI hiện có: `/login`, `/intake`, `/tickets`, `/tickets/[ticketId]`. QL có E09/E11, NV mở ID và ghi E13; quyền bắt buộc tại backend. Không thêm endpoint nghiệp vụ hoặc gọi catalog dành NV để dựng tên cho QL. FE-07 hoàn thiện WF02 ba/hai/một cột, form NV dưới lịch sử và focus/keyboard/bảng cuộn; giữ form/state/controller hiện có, không thêm lớp dữ liệu hoặc API. Đã hồi quy local và container theo [báo cáo FE-07](progress/frontend/phase-07.md).
 
 Proxy chỉ chuyển đường dẫn đã allowlist, không có luật/SQL/secret và không phải endpoint nghiệp vụ mới. L2_API_PROXY_TARGET chỉ ở Next server; public base mặc định /api. Chỉ triển khai ba màn hình, không bộ UI CRUD đầy đủ.
 
 ## Tái lập
 
-Local chạy hai tiến trình dev theo root README. Compose có database/backend/frontend, publish HTTP loopback, database chỉ mạng nội bộ và volume riêng. Mode local chỉ chấp nhận DB host loopback; mode compose chỉ host database; cả hai chỉ tên mekong-mobile-l2. Initializer khóa advisory toàn chuỗi credential/migrate/seed, không chạy server khi lỗi; health xác minh checksum/config/DB và HTTP 401. Backend image chạy user node. Credential mới chỉ trong volume private; dùng lại khi restart. Seed lặp không ghi đè dữ liệu vận hành.
+Local chạy hai tiến trình dev theo root README. Compose có database/backend/frontend, publish HTTP loopback, database chỉ mạng nội bộ và volume riêng. Mode local chỉ chấp nhận DB host loopback; mode compose chỉ host database; cả hai chỉ tên mekong-mobile-l2. Initializer khóa advisory toàn chuỗi migrate→đọc reference từ DB→credential nếu chưa có→seed, không chạy server khi lỗi; health xác minh checksum/config/DB và HTTP 401. Backend image chạy user node. Credential mới chỉ trong volume private; dùng lại khi restart. Seed lặp không ghi đè dữ liệu vận hành.
 
 Helper backend `scripts/ui-test.ts` hỗ trợ catalog hơn100 sản phẩm/catalog rỗng (FE-03), clock nghiệp vụ và nhóm ngừng (FE-04) chỉ trong fixture/schema cách ly. Clock truyền qua dependency sẵn có của warranty/device/ticket service; không đổi auth clock hay thêm endpoint chỉnh giờ. Restart test khôi phục clock/catalog, giữ fingerprint public trước/sau và dọn đúng schema test. Không đổi backend production/config/seed/migration.
 
-Giới hạn: session một process, reference config offline, chưa cloud/HA/monitoring/refresh token. Wireframe được thích ứng theo TD-13/TD-15/TD-17/TD-18, không sửa PDF/contract/SRS gốc. FE-01–04 đã hiện thực; FE-05–07 và thị giác toàn bộ còn theo kế hoạch. Xem [README](../README.md), [minh chứng Phase 6](tests/bt2-test-evidence.md), [Phase 6](progress/backend/phase-06.md) và [FE-04](progress/frontend/phase-04.md).
+FE-06 mở rộng helper UI bằng điều khiển file cho một ticket test MOI→DA_PHAN_CONG để kiểm409 APPROVAL_NOT_APPLICABLE; ticket+log cùng transaction trong schema cách ly. Đây là fixture dữ liệu bước sau, không module phân công hoặc endpoint production. Browser tiếp tục kiểm fingerprint public và chỉ dọn schema test. Backend production/seed/migration không đổi.
+
+Giới hạn: session một process, reference config offline, chưa cloud/HA/monitoring/refresh token. Wireframe thích ứng theo TD-13/TD-15/TD-17–21, không sửa PDF/contract/SRS gốc. FE-01–07 đã hiện thực và bàn giao. NFR01–03 có minh chứng FE-07; QA Chromium ở bốn viewport, chưa audit WCAG/thiết bị thật hoặc toàn bộ BT3. Xem [README](../README.md), [minh chứng Phase 6](tests/bt2-test-evidence.md), [Phase 6](progress/backend/phase-06.md) và [FE-06](progress/frontend/phase-06.md).
+
+## Chuyển nguồn trung tâm sang PostgreSQL (TD-22)
+
+Theo yêu cầu và lựa chọn hai trung tâm hiện có của sinh viên: migration003 chuyển ID1/2 cùng tên/trạng thái vào service_center và bổ sung hai FK RESTRICT. ServiceCenterRepository đọc dữ liệu, loadReference(file,pool) ghép centers từ DB vào cấu hình runtime; source JSON version2 chỉ chứa products/accounts. Tên/membership được kiểm khi startup; auth dùng repository kiểm trạng thái DB mỗi login/request, không dựa snapshot is_active cũ. E08 giữ khóa SHARE trung tâm trong transaction trước khóa customer/device/category, ngăn chuyển is_active trong lúc tạo phiếu.
+
+Auth authenticate nay async; kiểm lại TTL/Map sau SQL để không nhận phiên hết hạn hoặc đã đóng lúc chờ query. UI/client/contract HTTP không đổi, chưa có endpoint quản trị trung tâm. Sáu bảng lõi/luật L2 giữ nguyên, thêm một danh mục phụ thuộc; không nhập CSV hoặc mở L4/L5. Chi tiết [báo cáo](progress/backend/service-centers-postgresql.md).

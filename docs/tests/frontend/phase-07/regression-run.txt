@@ -1,0 +1,384 @@
+npm notice run test
+npm notice run node --env-file-if-exists=src/backend/.env scripts/test-all.mjs
+npm notice run backend@1.0.0 typecheck
+npm notice run tsc --noEmit
+npm notice run backend@1.0.0 test
+npm notice run node --test --test-concurrency=1 tests/unit.test.ts tests/http.test.ts tests/customer-device.unit.test.ts tests/intake.unit.test.ts tests/ticket-history.unit.test.ts tests/packaging.unit.test.ts tests/packaging.http.test.ts
+✔ P3-U01 QT-02: bốn định dạng phone về cùng giá trị, không đoán thuê bao (2.833ms)
+✔ P3-U02 customer validation: tên1/120/121 code point, address bỏ/null/rỗng (0.3944ms)
+✔ P3-U03 PATCH whitelist và semantics bỏ field/null; không sửa trường chỉ đọc (0.7244ms)
+✔ P3-U04 ngày mua: null/năm nhuận/ngày sai/tương lai và biên local Asia/Ho_Chi_Minh (12.6475ms)
+✔ P3-U05 E04: serial chuỗi, thiếu ngày mua, product safe ID và field client bị cấm (0.3432ms)
+✔ P3-U06 serializer exact field, phone masking/manager và safe BIGINT (0.3337ms)
+✔ P3-U07 customer service scope SQL parameter và role gate trước repository (0.3145ms)
+✔ P3-U08 phone collision chỉ trả existing_customer đã mask trong scope (0.3314ms)
+✔ P3-U09 product lookup active, lấy đúng0/120 tháng và không truy vấn product SQL (0.504ms)
+✔ P3-U10 serial collision khác owner không lộ existing_device; tombstone không trả profile (0.2928ms)
+✔ P3-U11 soft delete: PATCH tombstone404, DELETE lặp không ghi hoặc cascade (0.1859ms)
+✔ P3-U12 nested ownership404 và device DELETE cho phép cha đã ngừng (0.2287ms)
+✔ P3-U13 PATCH đã quan sát active nhưng mất active trước lock409; device chỉ sửa ngày (0.3055ms)
+✔ P3-U14 error mapping tên riêng đúng404/409 và không phản chiếu PG detail (0.6582ms)
+✔ HTTP login đúng contract: envelope/token/principal/offset/no-store/không secret (334.8721ms)
+✔ HTTP sai username/password/inactive cùng401 INVALID_CREDENTIALS (159.2456ms)
+✔ HTTP object/field/kiểu/query lạ và lặp đều400 (110.9872ms)
+✔ HTTP JSON hỏng400, media/charset sai415 và lỗi không phản chiếu body (46.647ms)
+✔ HTTP Bearer bảo vệ role/scope:401/403/404 và bỏ qua quyền client tự khai (169.0442ms)
+✔ HTTP token sửa/hết hạn tại biên401; auth-only harness không lắp route nghiệp vụ (94.3815ms)
+✔ HTTP đầy session trả503 đúng envelope và không tiết lộ credential (92.9058ms)
+✔ P4-U01 catalog: active, numeric sort, exact DTO, pagination và config không bị sửa (5.0041ms)
+✔ P4-U02 config thiếu/sai dừng trước khi phục vụ catalog, public error500 an toàn (1.7602ms)
+✔ P4-U03 category sáu mã theo CS, không default priority hoặc nhãn ngoài nguồn (0.1753ms)
+✔ P4-W còn (1.7862ms)
+✔ P4-W hết (0.0818ms)
+✔ P4-W thiếu (0.0524ms)
+✔ P4-W clamp inclusive (0.0535ms)
+✔ P4-W sau clamp (0.0511ms)
+✔ P4-W cộng đích một lần (0.0792ms)
+✔ P4-W nhuận (0.1069ms)
+✔ P4-W 0 inclusive (0.0569ms)
+✔ P4-W 0 sau ngày mua (0.0441ms)
+✔ P4-W 120 và năm (0.0493ms)
+✔ P4-W thế kỷ không nhuận (0.0293ms)
+✔ P4-U04 warranty validation: DATE khác TIMESTAMP, future, months sai (0.2299ms)
+✔ P4-U05 Clock localdate tại ranh UTC và timestamp giữ milliseconds (11.6614ms)
+✔ P4-U07 DD01/02 matrix ban đầu: CON/HET không cần duyệt, CHUA chờ duyệt (0.0866ms)
+✔ P4-S 2026-09-28T09:00:00 CAO (0.3085ms)
+✔ P4-S 2026-09-28T09:00:00 TRUNG_BINH (0.3426ms)
+✔ P4-S 2026-09-28T09:00:00 THAP (0.3301ms)
+✔ P4-S 2026-10-03T09:00:00 CAO (0.184ms)
+✔ P4-S 2026-10-03T09:00:00 TRUNG_BINH (0.2873ms)
+✔ P4-S 2026-10-03T09:00:00 THAP (0.3574ms)
+✔ P4-S 2026-10-04T09:00:00 CAO (0.1337ms)
+✔ P4-S 2026-10-04T09:00:00 TRUNG_BINH (0.241ms)
+✔ P4-S 2026-10-04T09:00:00 THAP (0.2939ms)
+✔ P4-S 2026-10-03T00:00:00 CAO (0.1733ms)
+✔ P4-S 2026-10-04T00:00:00 CAO (0.1649ms)
+✔ P4-S 2026-10-02T09:00:00 TRUNG_BINH (0.3405ms)
+✔ P4-S 2026-12-31T23:59:59.987 THAP (0.354ms)
+✔ P4-S 2026-10-31T23:59:59.987 CAO (0.1733ms)
+✔ P4-U06 E08 whitelist, safe IDs, priority bắt buộc và1/2000/2001 Unicode (0.7008ms)
+✔ P6-H01 compressed request lỗi không làm chết process; login sau đó vẫn200 (326.6463ms)
+✔ P6-U01 local guard vẫn chặn host Internet/database khác (0.9555ms)
+✔ P6-U02 Compose chỉ service database và đúng database, không vô hiệu hóa guard (0.1653ms)
+✔ P6-U03 mode lạ và config placeholder bị từ chối (0.0976ms)
+✔ P5-U01 E09 chỉ hai filter, không trim hoặc nhận KHONG_CAN/status lifecycle (1.0371ms)
+✔ P5-U02 note optional/null/trim1–1000 Unicode, whitelist, không ép buộc ghi chú (0.3853ms)
+✔ P5-U03 content dùng Unicode/trim chung,1/2000/2001, không actor/time client (0.2619ms)
+✔ P5-U04 scope NV chỉ active center dù membership nhiều, QL đủ allowed centers (0.3582ms)
+✔ P5-U05 approval chỉ CHUA+CHO+MOI, đã duyệt conflict riêng (0.201ms)
+✔ P5-U06 E10 DTO exact field, snapshot DATE, phone masking tái sử dụng và can_proceed sau duyệt (2.3555ms)
+✔ P5-U07 E09/E11 DTO không lộ phone/actor dư thừa, timestamps+07 và safe ID (0.1796ms)
+✔ P5-U08 communication DTO chỉ5 field, số actor/ID và timestamp offset (0.1263ms)
+✔ P5-U09 E09 service truyền scope/filter/page nguyên vẹn, NV bị chặn trước repository (0.2643ms)
+✔ P5-U10 E10 service không gọi clock/domain tính lại, missing404; snapshot cũ (0.2645ms)
+✔ P5-U11 E11 dùng cùng transaction/client, server actor/time, không log/SLA update (0.2896ms)
+✔ P5-U12 E11 role/scope/đã duyệt/guard0/failure rollback, không overwrite (0.638ms)
+✔ P5-U13 E12 empty khác404, scope/page; NV/QL đọc không clock hoặc ghi (0.2763ms)
+✔ P5-U14 E13 NV ghi khi chờ duyệt, QL403, actor/time server và giữ ticket (0.2092ms)
+✔ P5-U15 E13 missing/failure rollback và lỗi contract404/409/500 không detail (0.3445ms)
+✔ config demo hợp lệ, deep freeze và miền tháng 0/120 (238.8093ms)
+✔ config từ chối version (1.0929ms)
+✔ config từ chối duplicate-center (0.5095ms)
+✔ config từ chối duplicate-product (0.6052ms)
+✔ config từ chối duplicate-employee (0.4367ms)
+✔ config từ chối duplicate-username (0.9045ms)
+✔ config từ chối membership (0.4914ms)
+✔ config từ chối active-center (0.4829ms)
+✔ config từ chối months (0.4304ms)
+✔ config từ chối role (0.4588ms)
+✔ config từ chối extra-field (0.4502ms)
+✔ runtime chỉ chấp nhận đúng database local; lỗi không lộ password (0.3919ms)
+✔ validation: object/whitelist/required/Unicode sau trim và password không trim (0.2923ms)
+✔ validation: safe ID, query lặp/lạ và pagination (0.6661ms)
+✔ error mapping: AppError và PG UNIQUE/FK/CHECK không tiết lộ detail/stack (0.1591ms)
+✔ scrypt: đúng/sai password, salt khác nhau và credential malformed bị từ chối (92.9496ms)
+✔ token: random/digest lookup, TTL đúng biên và restart (98.1609ms)
+✔ session cap/cleanup và login đồng thời không vượt giới hạn (97.6438ms)
+✔ authorization: NV active center; QL allowed centers; role và out-of-scope (137.3124ms)
+✔ transaction helper dùng một connection và release khi commit/rollback lỗi (0.7152ms)
+✔ BEGIN lỗi không gọi callback (0.1039ms)
+✔ principal không còn hoạt động làm token cũ bị từ chối (44.9416ms)
+ℹ tests 94
+ℹ suites 0
+ℹ pass 94
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3222.0207
+npm notice run backend@1.0.0 test:db
+npm notice run node --env-file-if-exists=.env --test --test-concurrency=1 tests/postgres.test.ts tests/customer-device.postgres.test.ts tests/intake.postgres.test.ts tests/ticket-history.postgres.test.ts tests/frontend-contract.postgres.test.ts
+▶ Phase 3 — HTTP + PostgreSQL thật, dữ liệu và concurrency cách ly
+  ✔ P3-I01 E01/QT01/02/14/15: bốn phone cùng ID, masking,404 thiếu/ngoài scope (169.8412ms)
+  ✔ P3-I02 E02:201 persisted, principal center, server timestamp và exact shape (46.6035ms)
+  ✔ P3-I03 E02 collision:409 existing masked trong scope, ngoài scope/tombstone không profile (165.4356ms)
+  ✔ P3-I04 8 endpoint đều401/403 trước input, không cấp quyền từ header (352.2408ms)
+  ✔ P3-I05 E03/E04: product0/120, serial exact, numeric99/100, filter/pagination/empty page (276.1129ms)
+  ✔ P3-I06 E04: inactive/missing product404, future400, NULL hợp lệ, stored months không lấy lại config (155.6932ms)
+  ✔ P3-I07 serial collision: cùng owner409, sai owner/ngoài scope không lộ, tombstone không reuse (49.749ms)
+  ✔ P3-I08 PATCH Customer200 whitelist/null/omission/Unicode; created_at và history không đổi (194.2397ms)
+  ✔ P3-I09 PATCH Device200 chỉ ngày, parent/owner404; snapshot và inactive product không bị sửa (199.3979ms)
+  ✔ P3-I10 DELETE Device204/lặp, giữ timestamp/FK/serial/ticket và E03 ẩn tombstone (75.8988ms)
+  ✔ P3-I11 DELETE Customer204/lặp, không cascade; child DELETE khi cha ngừng vẫn204 (203.3711ms)
+  ✔ P3-I12 DELETE body JSON400/nonJSON415; JSON/media/query/path errors an toàn (21.7463ms)
+  ✔ P3-I13 UNIQUE phone cạnh tranh cùng/cross center: chỉ một201, còn409 không leak (91.1543ms)
+  ✔ P3-I14 UNIQUE serial cạnh tranh cùng/cross owner: một201, owner không chuyển (69.6781ms)
+  ✔ P3-I15 DELETE thắng E04 đang tranh khóa:204/404, không insert sau delete (108.1005ms)
+  ✔ P3-I16 PATCH/delete có quan sát active:409, request sau đó404; hai DELETE cùng204 (181.63ms)
+  ✔ P3-I17 PATCH đồng thời field khác không ghi đè omission, giữ phone/center (15.4564ms)
+  ✔ P3-I18 FK/CHECK/transaction rollback thật và pool dùng tiếp sau UNIQUE lỗi (6.3464ms)
+  ✔ P3-I19 seed không restore hồ sơ ngừng và history không đổi qua toàn bộ CRUD (132.1022ms)
+  ✔ P3-I20 chỉ8 API Phase3+login; E05–E13 và route test chưa public (39.0088ms)
+✔ Phase 3 — HTTP + PostgreSQL thật, dữ liệu và concurrency cách ly (3369.3732ms)
+▶ Phase6 —12 case BT2, API client ↔ Express ↔ PostgreSQL thật
+  ✔ TC01 login200/Bearer/principal NV11 center1 (45.4357ms)
+  ✔ TC02 bốn phone cùng customer_id và phone che (67.2735ms)
+  ✔ TC03 trùng phone409/field phone/existing_customer đã mask (59.9804ms)
+  ✔ TC04 device201 months12, trùng serial409, chủ không chuyển (97.0471ms)
+  ✔ TC05 ngày cuối 28/09/2026 còn bảo hành (29.5285ms)
+  ✔ TC06 ngày sau29/09 hết bảo hành, preview200 (16.5379ms)
+  ✔ TC07 NULL purchase→CHUA/CHO, MOI, can_proceed=false (35.6098ms)
+  ✔ TC08 ticket+initial log commit cùng nhau; log lỗi rollback thật (11.7216ms)
+  ✔ TC09 thiếu priority400/fields.priority, không tạo phiếu (12.6445ms)
+  ✔ TC10 manager center1 duyệt center2→404, không metadata mới (62.9084ms)
+  ✔ TC11 hai manager: một200/một409, metadata người thắng giữ nguyên (142.4975ms)
+P6_BT2_EVIDENCE [{"id":"TC01","type":"Luồng đúng","actual":"login200/Bearer/principal NV11 center1","result":"PASS"},{"id":"TC02","type":"Luồng đúng","actual":"bốn phone cùng customer_id và phone che","result":"PASS"},{"id":"TC03","type":"Dữ liệu sai","actual":"trùng phone409/field phone/existing_customer đã mask","result":"PASS"},{"id":"TC04","type":"Luồng đúng / sai","actual":"device201 months12, trùng serial409, chủ không chuyển","result":"PASS"},{"id":"TC05","type":"Giá trị biên","actual":"ngày cuối 28/09/2026 còn bảo hành","result":"PASS"},{"id":"TC06","type":"Giá trị biên","actual":"ngày sau29/09 hết bảo hành, preview200","result":"PASS"},{"id":"TC07","type":"Luồng đúng / ngoại lệ","actual":"NULL purchase→CHUA/CHO, MOI, can_proceed=false","result":"PASS"},{"id":"TC08","type":"Luồng đúng / lỗi ghi","actual":"ticket+initial log commit cùng nhau; log lỗi rollback thật","result":"PASS"},{"id":"TC09","type":"Dữ liệu sai","actual":"thiếu priority400/fields.priority, không tạo phiếu","result":"PASS"},{"id":"TC10","type":"Dữ liệu sai / quyền","actual":"manager center1 duyệt center2→404, không metadata mới","result":"PASS"},{"id":"TC11","type":"Đồng thời","actual":"hai manager: một200/một409, metadata người thắng giữ nguyên","result":"PASS"},{"id":"TC12","type":"Liên thông","actual":"communication→approval→detail, giữ snapshot/SLA/log; lặp409","result":"PASS"}]
+  ✔ TC12 communication→approval→detail, giữ snapshot/SLA/log; lặp409 (136.7852ms)
+✔ Phase6 —12 case BT2, API client ↔ Express ↔ PostgreSQL thật (1582.745ms)
+▶ Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử và tranh khóa
+  ✔ P4-I01 E05–E08 auth/role401/403 trước validation; E09–E13 vẫn404 (204.4178ms)
+  ✔ P4-I02 E05 exact config, numeric paging, inactive/empty, query/body errors (147.7246ms)
+  ✔ P4-I03 E06 sáu nhãn, active/empty, không default_priority và không query (59.123ms)
+  ✔ P4-I04 E07 còn/hết/NULL, leap/clamp/inclusive/0/120 và DATE không timestamp (477.0228ms)
+  ✔ P4-I05 E07 không ghi toàn bộ7 bảng/sequence, clock+07 tại ranh UTC (20.6204ms)
+  ✔ P4-I06 E07 scope/soft delete customer hoặc device404, không lộ hồ sơ (153.2688ms)
+  ✔ P4-I07 E08 ba matrix201, exact DTO/Location, actor/time/MOI và1 log cùng commit (157.05ms)
+  ✔ P4-I08 E08 thiếu/sai priority, safe ID/kiểu/Unicode/readonly/media/query không ghi DB (777.5083ms)
+  ✔ P4-I09 E08 scope403/404, owner409, category400 và tombstone không tạo ticket/log (312.9027ms)
+  ✔ P4-I10 E08 Unicode1/2000, lưu trim và lấy tháng device chứ không product hiện tại (47.8389ms)
+  ✔ P4-I11 E08 tính lại preview; PATCH/seed giữ snapshot/SLA/log cũ, hai thời điểm độc lập (225.5265ms)
+  ✔ P4-I12 lỗi INSERT log PostgreSQL thật rollback ticket; sequence gap được phép/pool còn dùng (25.1794ms)
+  ✔ P4-I13 concurrent10 E08 cùng thiết bị đều201, unique code và một initial log mỗi phiếu (116.9174ms)
+  ✔ P4-I14 DELETE Customer thắng E08 đang chờ:404 không insert; E08 thắng giữ lịch sử (44.2691ms)
+  ✔ P4-I15 DELETE Device thắng E08:404 không insert, tombstone giữ quan hệ (15.2291ms)
+  ✔ P4-I16 PATCH ngày mua thắng E08 thì snapshot mới; E08 khóa device trước thì snapshot cũ (38.667ms)
+  ✔ P4-I17 Category khóa/recheck khi inactive cạnh tranh, không lưu category cũ (6.1589ms)
+  ✔ P4-I18 E08 clock thực hiện sau khóa, SLA Chủ nhật/+07/milliseconds và code qua năm không reset (72.9227ms)
+  ✔ P4-I19 PG CHECK/FK/UNIQUE bảo toàn matrix/snapshot/metadata/due/log, không ticket thiếu log (31.3976ms)
+  ✔ P4-I20 E08 center2 actor12, snapshot0/120 và ngày mua tương lai bị từ chối (183.5662ms)
+  ✔ P4-I21 clock lấy sau khóa, qua nửa đêm cùng assessed_on/received_at/log (35.2879ms)
+  ✔ P4-I22 public7 bảng và sequence không đổi qua toàn bộ HTTP/PG test (4.2044ms)
+✔ Phase 4 — HTTP + PostgreSQL: catalog, warranty, SLA, intake nguyên tử và tranh khóa (3954.3202ms)
+▶ PostgreSQL thật: migration, seed, integrity và foundation trong schema cách ly
+  ✔ migration từ schema trống và hai runner đồng thời (158.6361ms)
+  ✔ migration lần hai không áp dụng lại; version/checksum khớp (3.9022ms)
+  ✔ checksum lệch bị từ chối, không sửa registry hoặc schema (3.3877ms)
+  ✔ migration lỗi rollback cùng version, không giữ dữ liệu dở (4.6396ms)
+  ✔ seed hai lần:30 customer/30 device/6 nhóm/200 ticket/200 log/30 trao đổi (261.3924ms)
+  ✔ seed không ghi đè chỉnh sửa customer/device/approval/deleted_at và snapshot (119.153ms)
+  ✔ UNIQUE phone và serial kể cả tombstone; FK và CHECK bảo vệ dữ liệu (185.2318ms)
+  ✔ PostgreSQL Unicode CHECK: emoji2000 hợp lệ,2001 và chuỗi toàn trắng bị loại (85.1173ms)
+  ✔ CHECK cho thiếu ngày mua đã duyệt; cấm hết hạn chờ duyệt và metadata sai (130.5765ms)
+  ✔ transaction commit, cùng connection và rollback nguyên tử ticket+log (59.7768ms)
+  ✔ runtime sequence không đụng seed và seed không ghi đè phiếu vận hành xen giữa (120.6709ms)
+  ✔ config compatibility bao gồm ID và actor inactive của lịch sử/tombstone (1.8052ms)
+  ✔ seed xung đột rollback toàn bộ giao dịch, không sửa lịch sử (6.7443ms)
+  ✔ foundation từ chối config hỏng/thiếu lịch sử trước listen, cấu hình đúng thành công (277.9412ms)
+✔ PostgreSQL thật: migration, seed, integrity và foundation trong schema cách ly (1518.5387ms)
+▶ Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên thông L2
+  ✔ P5-I01 role từng endpoint,401/403 trước parse, không mở API ngoài L2 (245.6325ms)
+  ✔ P5-I02 E09 default/approved, scope1/1+2, exact DTO, numeric tie999/1000 (79.4226ms)
+  ✔ P5-I03 E09 pagination sau scope, out-of-page/empty, query sai/lặp/body400 (253.0465ms)
+  ✔ P5-I04 E08 Location→E10 exact commit DTO, phone NV/QL và read không ghi/log (31.4182ms)
+  ✔ P5-I05 E10 scope từ ticket.center_id, missing/deleted404, path/query validation (228.8061ms)
+  ✔ P5-I06 E10 snapshot/SLA không theo PATCH date/config/clock hiện tại (80.9616ms)
+  ✔ P5-I07 E11 success200 exact8 field, optional/null/note1000Unicode, actor/time server (290.845ms)
+  ✔ P5-I08 E11 CON/HET/lifecycle/repeat409 đúng code và toàn bộ DB bất biến (271.6871ms)
+  ✔ P5-I09 E11 note/readonly/JSON/media/query/path sai không ghi DB (203.6849ms)
+  ✔ P5-I10 hai manager tranh khóa thật: một200/một409, giữ actor/time/note đầu (166.689ms)
+  ✔ P5-I11 E11 UPDATE CHECK lỗi PostgreSQL thật rollback; guarded UPDATE0 không overwrite (69.0075ms)
+P5_NFR_EVIDENCE [{"id":"N01","actor":"anonymous","center":null,"expected":401,"actual":401,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N02","actor":"invalid token","center":null,"expected":401,"actual":401,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N03","actor":"employee11","center":1,"expected":403,"actual":403,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N04","actor":"manager21 outside ticket center2","center":1,"expected":404,"actual":404,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N05","actor":"employee11 forged headers","center":1,"expected":403,"actual":403,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N06","actor":"employee11 forged body","center":1,"expected":403,"actual":403,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N07","actor":"manager21 expired token","center":1,"expected":401,"actual":401,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N08","actor":"manager21 deactivated session","center":1,"expected":401,"actual":401,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true},{"id":"N09","actor":"inactive_demo has no session","center":1,"expected":401,"actual":401,"before":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","after":"c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42","pass":true}]
+  ✔ P5-I12 NFR02:9 yêu cầu trái quyền bị từ chối, hash7 bảng trước/sau từng lượt khớp (311.3015ms)
+  ✔ P5-I13 E12 empty khác404, scope1/2, order99/100 cùng timestamp, pagination/meta (339.6453ms)
+  ✔ P5-I14 E13 exact5 fields201, Unicode1/2000, actor11/12/time, không đổi ticket/log (149.3806ms)
+  ✔ P5-I15 E13 invalid/readonly/media/role/scope/ticket missing không INSERT hoặc log (284.2789ms)
+  ✔ P5-I16 parent tombstone vẫn E09/E10/E11/E12/E13; không restore, lịch sử giữ nguyên (155.0786ms)
+  ✔ P5-I17 E13 concurrent10 không mất message; E12 total/data một snapshot khi ghi đồng thời (110.7708ms)
+  ✔ P5-I18 INSERT communication CHECK lỗi PostgreSQL rollback, response500 an toàn (33.6762ms)
+  ✔ P5-I19 ticket soft delete thắng khóa: E11/E13 recheck404, không metadata/message mới (133.0503ms)
+  ✔ P5-I20 liên thông E01/E04/E07/E08→E10→E13/E12→E09/E11→E10 và lặp409 (358.5101ms)
+  ✔ P5-I21 E09 total/data nhất quán khi intake đồng thời, không lộ scope/phone (76.4512ms)
+  ✔ P5-I22 seed không ghi đè approval/communications/snapshot; vẫn6+1 bảng, public/sequence nguyên (144.5107ms)
+✔ Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên thông L2 (5035.5746ms)
+ℹ tests 95
+ℹ suites 0
+ℹ pass 95
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16704.8724
+npm notice run backend@1.0.0 build
+npm notice run tsc -p tsconfig.build.json
+npm notice run frontend@0.1.0 typecheck
+npm notice run tsc --noEmit
+npm notice run frontend@0.1.0 lint
+npm notice run eslint
+
+D:\Đồ án\CĐTN1\cdtn1-BuiTheAnh-L2\src\frontend\tests\browser\polish.spec.ts
+  54:11  warning  'customer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+
+npm notice run frontend@0.1.0 test
+npm notice run node --test tests/api-client.test.ts
+✔ F-U40 trao đổi trim1–2000 code point, không normalize và chặn NUL/surrogate (1.0579ms)
+✔ F-U41 note tùy chọn, biên1000/1001 Unicode, khoảng trắng bỏ trống hợp lệ (0.1938ms)
+✔ F-U42 action duyệt chỉ có khi đủ3 điều kiện từ E10 (0.1383ms)
+✔ F-U43 E11 xác nhận đúng ticket/trạng thái/metadata, không tự đổi snapshot (0.3749ms)
+✔ F-U44 lỗi field và kết quả ghi chưa xác định phân biệt validation/quyền/xung đột (0.2136ms)
+✔ F-U45 E11 chỉ note và E13 chỉ content, actor/time lấy đúng response (16.2096ms)
+✔ F-U36 query hàng chờ chỉ nhận enum/page an toàn, link quay lại không nhận URL tùy ý (0.2759ms)
+✔ F-U37 trang cuối tính từ total/size: rỗng, đủ trang và trang dư1 (0.1228ms)
+✔ F-U38 E09 summary không cần field ngoài contract, query size1 để đối chiếu empty (0.6618ms)
+✔ F-U39 E12 phân trang giữ đúng ID/actor/thứ tự response và không tự kéo E10 (0.4408ms)
+✔ F-U35 timestamp hiển thị dd/MM/yyyy HH:mm tại Việt Nam, giữ đúng biên00:00 (0.1858ms)
+✔ F-U30 mô tả lỗi1/2000/2001 code point, trim nhưng không normalize Unicode (0.7636ms)
+✔ F-U31 mô tả từ chối NUL/surrogate lẻ, không chặn cặp surrogate hợp lệ (0.2579ms)
+✔ F-U32 không default nhóm/ưu tiên, category phải thuộc danh mục đang đọc (0.1626ms)
+✔ F-U33 E07 không gửi ngày máy; E08 chỉ6 field, giữ kết quả/snapshot server (0.7564ms)
+✔ F-U34 kết quả ghi chưa xác định: mạng/5xx/DTO không được coi là chưa commit (0.1724ms)
+✔ F-U01 E01 customer_id/address null đúng contract, tên field id cũ bị từ chối (0.1306ms)
+✔ F-U02 Device DATE/null và numeric ID không tự đoán kiểu (0.1552ms)
+✔ F-U03 E08/E10 giữ snapshot NULL, nested DTO, can_proceed và offset (0.2012ms)
+✔ F-U04 page/meta từ response thật, empty/out-of-page và ID unsafe bị chặn (0.1197ms)
+✔ F-U05 login kiểm principal/role/Bearer, không dùng quyền client tự đặt (0.3802ms)
+✔ F-U06 request tập trung base URL/Bearer/JSON/cache; token chỉ trong memory (0.7055ms)
+✔ F-U07 error409/fields/existing_customer mask được giữ để chọn hồ sơ (0.4343ms)
+✔ F-U08 role403/resource404 trả mã ổn định, không tự logout (0.4809ms)
+✔ F-U09 HTTP401 xóa token/notify và request kế tiếp không Bearer (0.419ms)
+✔ F-U10 network/timeout và500 không phơi SQL/secret (0.2734ms)
+✔ F-U11 response đổi shape hoặc JSON hỏng bị ContractError thay vì đoán field (0.2678ms)
+✔ F-U12 catalog/warranty/communication và approval nullable đúng contract (0.1667ms)
+✔ F-U13 login401 là lỗi credential, không gửi token cũ hoặc báo hết phiên (0.2476ms)
+✔ F-U14 response401 phiên cũ không được xóa token của phiên mới (0.6166ms)
+✔ F-U15 kết quả hồ sơ phiên cũ không được đưa vào phiên mới (0.191ms)
+✔ F-U16 login hoàn tất sau logout không được phục hồi token (0.3223ms)
+✔ F-U17 đổi phiên trong lúc đọc body cũng không được nhận dữ liệu cũ (0.2246ms)
+✔ F-U18 return path chỉ nhận route nội bộ đúng vai trò và ID an toàn (0.1947ms)
+✔ F-U19 login kiểm username sau trim, giữ case và không normalize Unicode (0.1247ms)
+✔ F-U20 password rỗng bị chặn; khoảng trắng là dữ liệu hợp lệ theo A01 (0.0848ms)
+✔ F-U21 giới hạn password256 tính theo code point, không theo UTF16/grapheme (0.0579ms)
+✔ F-U22 login từ chối NUL/surrogate không ghép ở cả hai field (0.0634ms)
+✔ F-U23 E03 chuyển serial exact/page/size, giữ số0/case và encode dấu+ (0.2884ms)
+✔ F-U24 E05 phân trang theo server, không coi size100 là toàn danh mục (0.2775ms)
+✔ F-U25 lỗi SERIAL_ALREADY_EXISTS giữ existing_device đã decode đúng DTO (0.2734ms)
+✔ F-U26 không nhận existing_device ở lỗi khác chủ; DTO sai không được đoán (0.3391ms)
+✔ F-U27 phone UX cùng quy ước QT02/E01, kiểm raw1–30 trước chuẩn hóa (0.1948ms)
+✔ F-U28 tên/địa chỉ theo Unicode code point, rỗng/biên/NUL đều kiểm đúng (0.7554ms)
+✔ F-U29 serial chữ/số0/Unicode và ngày mua nullable/đúng lịch, không kiểm ngày máy (0.3074ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 201.8114
+npm notice run frontend@0.1.0 build
+npm notice run next build
+▲ Next.js 16.4.2 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 27ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 479ms
+  Running TypeScript ...
+  Finished TypeScript in 1991ms ...
+  Collecting page data using 12 workers ...
+  Generating static pages using 12 workers (0/9) ...
+  Generating static pages using 12 workers (2/9) 
+  Generating static pages using 12 workers (4/9) 
+  Generating static pages using 12 workers (6/9) 
+✓ Generating static pages using 12 workers (9/9) in 875ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/[...path]
+├ ○ /customers
+├ ○ /customers/new
+├ ○ /intake
+├ ○ /login
+├ ○ /tickets
+└ ƒ /tickets/[ticketId]
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+Running 53 tests using 1 worker
+
+(node:53408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\browser\intake.spec.ts:42:1 › FE03-UI01 tra cứu/tạo khách cùng màn hình, phone raw tách khỏi masked, lỗi giữ dữ liệu (1.5s)
+  ok  2 tests\browser\intake.spec.ts:59:1 › FE03-UI02 phone409 cùng scope chọn hồ sơ cũ; ngoài scope không lộ profile (1.2s)
+  ok  3 tests\browser\intake.spec.ts:77:1 › FE03-UI03 date400, serial409 cùng chủ/khác chủ và query exact giữ số0/case (1.3s)
+  ok  4 tests\browser\intake.spec.ts:104:1 › FE03-UI04 đọc đủ105 thiết bị và chọn sản phẩm sau bản ghi100, months do server cấp (4.0s)
+  ok  5 tests\browser\intake.spec.ts:139:1 › FE03-UI05 sửa phone trong lúc tải; response cũ không đổi khách/thiết bị/preview mới (958ms)
+  ok  6 tests\browser\intake.spec.ts:164:1 › FE03-UI06 catalog lỗi/rỗng độc lập với thiết bị có sẵn (1.4s)
+  ok  7 tests\browser\intake.spec.ts:184:1 › FE03-UI07 mất response sau commit: phục hồi GET customer/device, không tự POST lặp (983ms)
+  ok  8 tests\browser\intake.spec.ts:212:1 › FE03-UI08 Unicode name/address/serial và bố cục gộp trên desktop/mobile (1.3s)
+NFR01_RENDER_RESULT {"passed":100,"p95":48.20000000298023,"max":48.899999998509884}
+  ok  9 tests\browser\l2.spec.ts:16:1 › UI01 NFR01:100 lượt click→DOM render, đúng200 ticket và warm-up riêng (10.8s)
+  ok 10 tests\browser\l2.spec.ts:25:1 › UI02 ba màn hình API thật: thiếu ngày mua→ticket→trao đổi→manager duyệt (1.9s)
+  ok 11 tests\browser\l2.spec.ts:49:1 › UI03 loading/empty/error/retry cả3 màn hình, tắt Backend thật rồi phục hồi (3.0s)
+  ok 12 tests\browser\l2.spec.ts:65:1 › UI04 quyền/center,401 thực sau restart, token memory và viewport375px (917ms)
+  ok 13 tests\browser\l2.spec.ts:76:1 › FE01-UI01 route client giữ phiên; reload cần login và guard không gọi API sai quyền (888ms)
+  ok 14 tests\browser\l2.spec.ts:119:1 › FE01-UI02 mở URL chi tiết chưa login, quay lại đúng phiếu; logout dọn dữ liệu (1.1s)
+  ok 15 tests\browser\login.spec.ts:38:1 › FE02-UI01 field validation/focus và biên Unicode, không gửi input sai (678ms)
+  ok 16 tests\browser\login.spec.ts:69:1 › FE02-UI02 hiện/ẩn, Enter, busy chống gửi lặp; username trim và password giữ nguyên (662ms)
+  ok 17 tests\browser\login.spec.ts:110:1 › FE02-UI03 sai credential401 chung, giữ username và không báo hết phiên (1.1s)
+  ok 18 tests\browser\login.spec.ts:129:1 › FE02-UI04 lỗi400 thật gắn field và focus; người dùng sửa rồi đăng nhập lại (584ms)
+  ok 19 tests\browser\login.spec.ts:144:1 › FE02-UI05 lỗi mạng và backend offline503, giữ form để chủ động thử lại (866ms)
+  ok 20 tests\browser\login.spec.ts:164:1 › FE02-UI06 đầy session503 thật, thông báo riêng và thử lại được sau restart (7.0s)
+  ok 21 tests\browser\polish.spec.ts:29:1 › FE07-UI01 login bốn viewport, lỗi có mô tả và điều hướng bằng bàn phím (541ms)
+  ok 22 tests\browser\polish.spec.ts:53:1 › FE07-UI02 intake ba/hai/một cột, dữ liệu dài và focus lỗi phân loại (1.1s)
+  ok 23 tests\browser\polish.spec.ts:81:1 › FE07-UI03 chi tiết giữ nguyên text dài, xuống dòng và HTML là văn bản (961ms)
+  ok 24 tests\browser\polish.spec.ts:101:1 › FE07-UI04 bảng cuộn nội bộ bằng bàn phím, focus rõ và header đủ tám cột (1.3s)
+  ok 25 tests\browser\ticket-intake.spec.ts:61:1 › FE04-UI01 field/focus, Unicode2000, không default;400 thật giữ draft rồi tạo201 (1.1s)
+  ok 26 tests\browser\ticket-intake.spec.ts:93:1 › FE04-UI02 còn/hết/thiếu mua, biên hết hạn và SLA thứ Bảy/Chủ nhật từ server (2.9s)
+  ok 27 tests\browser\ticket-intake.spec.ts:119:1 › FE04-UI03 preview khác ngày tạo: dùng snapshot mới, payload chỉ6 field và không assessment_date (1.1s)
+  ok 28 tests\browser\ticket-intake.spec.ts:138:1 › FE04-UI04 nhóm rỗng/lỗi và preview lỗi độc lập, retry giữ mô tả (1.3s)
+  ok 29 tests\browser\ticket-intake.spec.ts:161:1 › FE04-UI05 category/device ngừng sau preview: lỗi thật giữ draft, không tạo giả (1.1s)
+  ok 30 tests\browser\ticket-intake.spec.ts:176:1 › FE04-UI06 busy khóa lựa chọn, click lặp/Back không gửi lại; receipt mở chi tiết và tạo tiếp (1.0s)
+  ok 31 tests\browser\ticket-intake.spec.ts:196:1 › FE04-UI07 timeout10 giây sau commit: giữ bản nhập, không auto retry hoặc tạo thêm (11.0s)
+  ok 32 tests\browser\ticket-intake.spec.ts:221:1 › FE04-UI08 hủy draft có xác nhận, giữ customer/device đã lưu, responsive và keyboard (1.2s)
+  ok 33 tests\browser\ticket-intake.spec.ts:236:1 › FE04-UI09 POST về muộn sau logout không phục hồi receipt hoặc gửi lại (1.2s)
+  ok 34 tests\browser\tickets-read.spec.ts:43:1 › FE05-UI01 QL danh sách đúng meta/sort, không N+1/catalog, giữ filter/page về từ chi tiết (1.3s)
+  ok 35 tests\browser\tickets-read.spec.ts:67:1 › FE05-UI02 E12 đủ23 trao đổi, cũ trước, lỗi/retry độc lập không gọi lại E10 (1.4s)
+  ok 36 tests\browser\tickets-read.spec.ts:92:1 › FE05-UI03 snapshot bất biến sau PATCH/soft delete; NV phone che, QL phone theo server (1.4s)
+  ok 37 tests\browser\tickets-read.spec.ts:119:1 › FE05-UI04 ID sai không GET, ngoài scope404 không lộ hồ sơ, NV không E09 (974ms)
+  ok 38 tests\browser\tickets-read.spec.ts:136:1 › FE05-UI05 quay về sau duyệt hết trang cuối tự về trang hợp lệ (1.3s)
+  ok 39 tests\browser\tickets-read.spec.ts:155:1 › FE05-UI06 phân biệt toàn bộ rỗng/bộ lọc rỗng và probe lỗi không kết luận thiếu dữ liệu (2.1s)
+  ok 40 tests\browser\tickets-read.spec.ts:174:1 › FE05-UI07 đổi ID khi history cũ về muộn không lẫn phiếu hoặc draft ghi (1.1s)
+  ok 41 tests\browser\tickets-read.spec.ts:189:1 › FE05-UI08 responsive bảng/chi tiết, time đúng định dạng và reload guard trước GET (1.7s)
+  ok 42 tests\browser\tickets-write.spec.ts:55:1 › FE06-UI01 trao đổi Unicode2000/busy/payload,1 POST và tới trang chứa bản ghi21 (1.3s)
+  ok 43 tests\browser\tickets-write.spec.ts:81:1 › FE06-UI02 lỗi400 thật giữ nội dung/focus rồi gửi lại chủ động (971ms)
+  ok 44 tests\browser\tickets-write.spec.ts:90:1 › FE06-UI03 đã lưu nhưng GET lịch sử lỗi: không gửi lại, retry GET rồi bản nhập mới rỗng (1.1s)
+  ok 45 tests\browser\tickets-write.spec.ts:105:1 › FE06-UI04 E13 timeout sau commit: GET đối chiếu không tự suy từ content hoặc POST lặp (11.1s)
+  ok 46 tests\browser\tickets-write.spec.ts:122:1 › FE06-UI05 note1000/1001, busy1 POST, metadata thật và snapshot/SLA giữ sau duyệt (1.4s)
+  ok 47 tests\browser\tickets-write.spec.ts:142:1 › FE06-UI06 hai QL409 ALREADY_APPROVED: giữ người/giờ/note đầu, không ghi đè (1.5s)
+  ok 48 tests\browser\tickets-write.spec.ts:155:1 › FE06-UI07 APPROVAL_NOT_APPLICABLE thật: đọc trạng thái mới và bỏ action (1.2s)
+  ok 49 tests\browser\tickets-write.spec.ts:163:1 › FE06-UI08 E11 timeout sau commit: chỉ GET phục hồi metadata, không POST lại (11.5s)
+  ok 50 tests\browser\tickets-write.spec.ts:176:1 › FE06-UI09 đã duyệt nhưng GET chi tiết lỗi: giữ xác nhận, chỉ retry GET (1.2s)
+  ok 51 tests\browser\tickets-write.spec.ts:187:1 › FE06-UI10 NFR02: no token/NV/ngoài center không duyệt, QL không ghi E13 và dữ liệu nguyên (557ms)
+  ok 52 tests\browser\tickets-write.spec.ts:199:1 › FE06-UI11 E13 về muộn sau đổi ID không xác nhận/ghi vào phiếu mới (1.1s)
+  ok 53 tests\browser\tickets-write.spec.ts:209:1 › FE06-UI12 E13 bị403 giữ draft;401 thật sau restart về login và dọn dữ liệu (1.1s)
+
+  53 passed (1.9m)
+UI_FIXTURE_PUBLIC_PRESERVED
+(node:40188) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)

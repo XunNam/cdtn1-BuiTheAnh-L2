@@ -88,11 +88,11 @@ test("token: random/digest lookup, TTL đúng biên và restart", async () => {
     const a = await auth.login("nv_demo_a", identity.password), b = await auth.login("nv_demo_a", identity.password);
     assert.match(a.access_token, /^[A-Za-z0-9_-]{43}$/); assert.notEqual(a.access_token, b.access_token);
     assert.equal(a.expires_at, "2026-10-24T10:00:00.000+07:00");
-    assert.equal(auth.authenticate("Bearer " + a.access_token).employee_id, 11);
-    assert.throws(() => auth.authenticate("Bearer invalid"), isCode("AUTHENTICATION_REQUIRED"));
-    assert.throws(() => restarted.authenticate("Bearer " + a.access_token), isCode("AUTHENTICATION_REQUIRED"));
-    time += 3599999; assert.equal(auth.authenticate("Bearer " + a.access_token).employee_id, 11);
-    time++; assert.throws(() => auth.authenticate("Bearer " + a.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    assert.equal((await auth.authenticate("Bearer " + a.access_token)).employee_id, 11);
+    await assert.rejects(auth.authenticate("Bearer invalid"), isCode("AUTHENTICATION_REQUIRED"));
+    await assert.rejects(restarted.authenticate("Bearer " + a.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    time += 3599999; assert.equal((await auth.authenticate("Bearer " + a.access_token)).employee_id, 11);
+    time++; await assert.rejects(auth.authenticate("Bearer " + a.access_token), isCode("AUTHENTICATION_REQUIRED"));
     assert.equal(auth.sessionCount(), 0);
   } finally { auth.close(); restarted.close(); }
 });
@@ -155,7 +155,34 @@ test("principal không còn hoạt động làm token cũ bị từ chối", asy
   try {
     const signed = await auth.login("nv_demo_a", identity.password);
     accounts[0]!.is_active = false;
-    assert.throws(() => auth.authenticate("Bearer " + signed.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    await assert.rejects(auth.authenticate("Bearer " + signed.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    assert.equal(auth.sessionCount(), 0);
+  } finally { auth.close(); }
+});
+
+test("trạng thái trung tâm từ nguồn DB được kiểm lại, token bị thu hồi khi ngừng", async () => {
+  let active = true;
+  const auth = createAuth(identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100,
+    isCenterActive: async id => { assert.equal(id, 1); return active; } });
+  try {
+    const signed = await auth.login("nv_demo_a", identity.password);
+    active = false;
+    await assert.rejects(auth.authenticate("Bearer " + signed.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    await assert.rejects(auth.login("nv_demo_a", identity.password), isCode("INVALID_CREDENTIALS"));
+    active = true;
+    await assert.rejects(auth.authenticate("Bearer " + signed.access_token), isCode("AUTHENTICATION_REQUIRED"));
+    assert.equal((await auth.login("nv_demo_a", identity.password)).principal.active_center_id, 1);
+  } finally { auth.close(); }
+});
+
+test("phiên hết hạn trong lúc đợi SQL trung tâm không được chấp nhận", async () => {
+  let time = 0, expireDuringRead = false;
+  const auth = createAuth(identity.config, identity.credentials, { ttlSeconds: 1, maxSessions: 100, now: () => time,
+    isCenterActive: async () => { if (expireDuringRead) time = 1000; return true; } });
+  try {
+    const signed = await auth.login("nv_demo_a", identity.password);
+    expireDuringRead = true;
+    await assert.rejects(auth.authenticate("Bearer " + signed.access_token), isCode("AUTHENTICATION_REQUIRED"));
     assert.equal(auth.sessionCount(), 0);
   } finally { auth.close(); }
 });

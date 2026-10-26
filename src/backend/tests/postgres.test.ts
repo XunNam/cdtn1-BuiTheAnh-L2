@@ -1,3 +1,4 @@
+import "./service-centers.postgres.test.ts";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes, createHash } from "node:crypto";
@@ -32,9 +33,9 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
     const config = validateReference(await referenceInput());
     await t.test("migration từ schema trống và hai runner đồng thời", async () => {
       const results = await Promise.all([migrate(pool), migrate(pool)]);
-      assert.deepEqual(results.flat().sort(), [1, 2]);
+      assert.deepEqual(results.flat().sort(), [1, 2, 3]);
       const tables = await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname=current_schema() ORDER BY tablename");
-      assert.deepEqual(tables.rows.map(x => x.tablename), ["customer", "device", "issue_category", "schema_migration", "ticket", "ticket_communication", "ticket_status_log"]);
+      assert.deepEqual(tables.rows.map(x => x.tablename), ["customer", "device", "issue_category", "schema_migration", "service_center", "ticket", "ticket_communication", "ticket_status_log"]);
     });
     await t.test("migration lần hai không áp dụng lại; version/checksum khớp", async () => {
       assert.deepEqual(await migrate(pool), []);
@@ -49,10 +50,10 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
     });
     await t.test("migration lỗi rollback cùng version, không giữ dữ liệu dở", async () => {
       const sql = "INSERT INTO customer(full_name,phone,center_id) VALUES('Rollback migration','0981111111',1); SELECT 1/0;";
-      const extra = { version: 3, name: "003_failure_probe.sql", sql, checksum: createHash("sha256").update(sql).digest("hex") };
+      const extra = { version: 4, name: "004_failure_probe.sql", sql, checksum: createHash("sha256").update(sql).digest("hex") };
       await assert.rejects(migrate(pool, [...migrations, extra]));
       assert.equal((await pool.query("SELECT 1 FROM customer WHERE phone=$1", ["0981111111"])).rowCount, 0);
-      assert.equal((await pool.query("SELECT 1 FROM schema_migration WHERE version=3")).rowCount, 0);
+      assert.equal((await pool.query("SELECT 1 FROM schema_migration WHERE version=4")).rowCount, 0);
     });
     await t.test("seed hai lần:30 customer/30 device/6 nhóm/200 ticket/200 log/30 trao đổi", async () => {
       const first = await seed(pool, config), second = await seed(pool, config);
@@ -88,7 +89,7 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
       const metadata = (await pool.query("SELECT column_default FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='device' AND column_name='warranty_months'")).rows[0];
       assert.equal(metadata.column_default, null);
       const fk = await pool.query("SELECT 1 FROM pg_constraint WHERE connamespace=current_schema()::regnamespace AND contype='f'");
-      assert.equal(fk.rowCount, 5);
+      assert.equal(fk.rowCount, 7);
     });
     await t.test("PostgreSQL Unicode CHECK: emoji2000 hợp lệ,2001 và chuỗi toàn trắng bị loại", async () => {
       const ticketId = (await pool.query("SELECT ticket_id FROM ticket LIMIT 1")).rows[0].ticket_id as string;
@@ -160,11 +161,12 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
       privateDir = await mkdtemp(resolve(".private", "phase2-test-"));
       const referenceFile = resolve(privateDir, "reference.json"), credentialFile = resolve(privateDir, "credentials.json");
       await writeFile(credentialFile, JSON.stringify(identity.credentials), { mode: 0o600 });
-      await writeFile(referenceFile, JSON.stringify({ ...config, config_version: 0 }));
+      const { centers: _centers, ...fileConfig } = config;
+      await writeFile(referenceFile, JSON.stringify({ ...fileConfig, config_version: 0 }));
       await assert.rejects(prepareFoundation(pool, { ...runtime, referenceFile, credentialFile }), e => publicError(e).code === "CONFIGURATION_ERROR");
-      await writeFile(referenceFile, JSON.stringify({ ...config, products: config.products.filter(p => p.product_id !== 101) }));
+      await writeFile(referenceFile, JSON.stringify({ ...fileConfig, products: config.products.filter(p => p.product_id !== 101) }));
       await assert.rejects(prepareFoundation(pool, { ...runtime, referenceFile, credentialFile }), e => publicError(e).code === "CONFIGURATION_ERROR");
-      await writeFile(referenceFile, JSON.stringify(config));
+      await writeFile(referenceFile, JSON.stringify(fileConfig));
       const foundation = await prepareFoundation(pool, { ...runtime, referenceFile, credentialFile });
       foundation.auth.close();
     });

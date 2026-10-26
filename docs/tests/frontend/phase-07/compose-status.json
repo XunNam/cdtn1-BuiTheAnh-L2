@@ -1,0 +1,26 @@
+[
+  {
+    "Service": "backend",
+    "Name": "mekong-fe07-20261025-backend-1",
+    "Image": "sha256:255330aa8b0f7bed12717132c86e240a11dd40c1375f951cc73d7623e97f43f1",
+    "State": "running",
+    "Health": "healthy",
+    "Ports": "127.0.0.1:3318->3001/tcp"
+  },
+  {
+    "Service": "database",
+    "Name": "mekong-fe07-20261025-database-1",
+    "Image": "postgres:18-alpine",
+    "State": "running",
+    "Health": "healthy",
+    "Ports": "5432/tcp"
+  },
+  {
+    "Service": "frontend",
+    "Name": "mekong-fe07-20261025-frontend-1",
+    "Image": "mekong-fe07-20261025-frontend",
+    "State": "running",
+    "Health": "healthy",
+    "Ports": "127.0.0.1:3317->3000/tcp"
+  }
+]

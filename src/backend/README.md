@@ -8,7 +8,7 @@ Phase 6 giữ E01–E13 và bốn PATCH/DELETE Customer/Device, tích hợp ba m
 
 Mở terminal tại thư mục này (src/backend). PostgreSQL local phải có sẵn database riêng tên mekong-mobile-l2 và tài khoản được chủ máy cấp quyền. Mã nguồn chỉ chấp nhận host localhost/127.0.0.1/::1 và đúng database này; không tạo database hoặc thay quyền.
 
-Quyền cần cho migration: CONNECT database, USAGE/CREATE schema public. Seed cần SELECT/INSERT/UPDATE trên sáu bảng và USAGE/SELECT sequence; tài khoản chạy migration sở hữu đối tượng vừa tạo có các quyền này. Integration test cần thêm CREATE trên chính database để tạo schema cách ly. Không tự GRANT, DROP hoặc reset database.
+Quyền cần cho migration: CONNECT database, USAGE/CREATE schema public và quyền sở hữu/ALTER customer, ticket để thêm FK; tài khoản đang dùng đã thực hiện thành công. Seed cần SELECT/INSERT/UPDATE trên sáu bảng và USAGE/SELECT sequence; tài khoản chạy migration sở hữu đối tượng vừa tạo có các quyền này. Integration test cần thêm CREATE trên chính database để tạo schema cách ly. Không tự GRANT, DROP hoặc reset database.
 
 ## Thiết lập và chạy trong bốn bước
 
@@ -17,20 +17,20 @@ Quyền cần cho migration: CONNECT database, USAGE/CREATE schema public. Seed 
    npm ci
    ~~~
 
-2. Trên máy mới, sao chép .env.example thành .env, điền DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD theo cấu hình local được cấp, rồi tạo credential demo:
+2. Trên máy mới, sao chép .env.example thành .env, điền DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD theo cấu hình local được cấp:
    ~~~powershell
    Copy-Item .env.example .env
-   # Sửa .env bằng editor trước lệnh tiếp theo.
-   npm run credentials:setup
+   # Sửa .env bằng editor trước bước 3.
    ~~~
    Nếu đã có .env/credential local, giữ nguyên chúng; không sao chép đè hoặc tạo lại. .env.example chỉ có placeholder, không có mật khẩu thật. .env và mọi thư mục .private bị root .gitignore loại trừ.
 
    Lệnh setup sinh password ngẫu nhiên riêng cho mỗi account, scrypt hash/salt trong .private/credentials.json và bản password chỉ để demo trong .private/demo-passwords.local.json. Cả hai là file local private, không đưa lên kho mã, chia sẻ hoặc dán vào log/báo cáo. Mở file private bằng editor khi cần nhập mật khẩu demo; chương trình không in password/hash/token. Setup không ghi đè file đã tồn tại.
 
-3. Kiểm kết nối/quyền, chạy migration rồi seed:
+3. Kiểm kết nối/quyền, chạy migration, tạo credential nếu là môi trường mới rồi seed:
    ~~~powershell
    npm run db:check
    npm run db:migrate
+   # Chỉ khi chưa có credential: npm run credentials:setup
    npm run db:seed
    ~~~
    Chỉ tiếp tục khi db:check thành công. Chạy migrate lần hai trả applied_versions rỗng. Seed lần hai không tạo trùng hoặc ghi đè vận hành. Không chạy docs/schema.sql trực tiếp lên database đã có bảng.
@@ -254,3 +254,13 @@ Docker image Backend user node; credential mới trong volume private, không tr
 Phase6 thêm packaging guards/gzip400 và12 case frontend-client→HTTP→PG. Test:db dùng --env-file-if-exists để chạy cả local và env container. Một lệnh từ root chạy mọi nhóm và trình duyệt. Kết quả: [Phase6](../../docs/progress/backend/phase-06.md).
 
 Dependency gián tiếp body-parser được vá2.4.0 theo [advisory chính thức](https://github.com/expressjs/body-parser/security/advisories/GHSA-27r3-jxmh-p828); Express/direct stack giữ nguyên. Decoder400 trả envelope an toàn, không phản chiếu thông báo thư viện.
+
+## Trung tâm bảo hành trong PostgreSQL — cập nhật sau FE-07
+
+`service_center(center_id,center_name,is_active)` là danh mục phụ thuộc mới. Migration003 chuyển đúng hai trung tâm demo, giữ ID/tên và thêm FK customer.center_id/ticket.center_id ON DELETE RESTRICT;001/002 không đổi. Backend đã có dữ liệu chỉ migrate rồi restart; không chạy credentials:setup hoặc reset/seed lại để chuyển trung tâm.
+
+`config/reference.demo.json` version2 giữ products/accounts/membership. `loadReference(file,pool)` đọc trung tâm qua repository, ghép cấu hình runtime và kiểm membership; không đọc/fallback danh mục trung tâm từ JSON. Tài khoản/password giữ nguyên. `createDatabaseAuth` kiểm is_active từ DB lúc login và từng request; E08 kiểm/khóa trung tâm trong transaction trước customer/device/category. Ngừng trung tâm làm phiên bị từ chối; hoạt động lại cần login mới nếu token đã bị thu hồi. Startup vẫn chặn account hoạt động trỏ active center ngừng hoặc membership thiếu.
+
+Đổi tên/trạng thái không bị seed hoặc migration lặp ghi đè. Tên được nạp lại ở startup; trạng thái dùng truy vấn DB trực tiếp. Chưa thêm endpoint/CRUD quản trị trung tâm; response A01/E01–E13 và frontend giữ nguyên. Bảy bảng dữ liệu (sáu lõi + trung tâm), một bảng migration kỹ thuật. Sáu trung tâm trong dataset và các CSV khác chưa được nạp.
+
+Kiểm thử SC-I01–07 được import từ `tests/postgres.test.ts`, nên `npm run test:db` và root `npm test` tự chạy, không cần script mới. [Báo cáo](../../docs/progress/backend/service-centers-postgresql.md), [minh chứng](../../docs/tests/backend/service-centers/verification.md).

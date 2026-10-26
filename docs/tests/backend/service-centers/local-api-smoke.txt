@@ -1,0 +1,1 @@
+{"existing_credentials_login":"PASS","customer_catalog_queue":"PASS","mode":"read-only","centers_source":"PostgreSQL"}

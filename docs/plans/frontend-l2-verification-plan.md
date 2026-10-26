@@ -1,6 +1,6 @@
 # Frontend L2 — Kế hoạch kiểm chứng và truy vết
 
-Ngày lập: **25/10/2026**. Trạng thái lúc lập kế hoạch: **NOT RUN**. Kết quả thực thi được ghi riêng tại [FE-01](../progress/frontend/phase-01.md), [FE-02](../progress/frontend/phase-02.md), [FE-03](../progress/frontend/phase-03.md), [FE-04](../progress/frontend/phase-04.md); các mục phase sau vẫn là kế hoạch. Dùng cùng [lộ trình triển khai](frontend-l2-implementation-plan.md) và [đặc tả màn hình](frontend-l2-screen-spec.md).
+Ngày lập: **25/10/2026**. Trạng thái lúc lập kế hoạch: **NOT RUN**. Kết quả thực thi được ghi riêng tại [FE-01](../progress/frontend/phase-01.md), [FE-02](../progress/frontend/phase-02.md), [FE-03](../progress/frontend/phase-03.md), [FE-04](../progress/frontend/phase-04.md), [FE-05](../progress/frontend/phase-05.md), [FE-06](../progress/frontend/phase-06.md) và [FE-07](../progress/frontend/phase-07.md); lộ trình đã hoàn thành. Tiêu chí bên dưới giữ nguyên baseline, kết quả đo và giới hạn nằm trong báo cáo từng phase. Dùng cùng [lộ trình triển khai](frontend-l2-implementation-plan.md) và [đặc tả màn hình](frontend-l2-screen-spec.md).
 
 Mã `FE-Txx` dưới đây là **nhóm kịch bản kiểm chứng đề xuất**, không phải mã test học phần đã được phê duyệt, không thay các TC/test hiện có và không chốt số lượng test của BT3.
 

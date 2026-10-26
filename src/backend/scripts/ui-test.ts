@@ -6,11 +6,11 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes, createHash } from "node:crypto";
 import os from "node:os";
-import { createPool, checkDatabase } from "../src/db.ts";
+import { createPool, checkDatabase, withTransaction } from "../src/db.ts";
 import { runtimeConfig } from "../src/runtime-config.ts";
 import { migrate } from "../src/migrate.ts";
 import { seed } from "../src/seed.ts";
-import { createAuth } from "../src/auth.ts";
+import { createDatabaseAuth } from "../src/auth.ts";
 import { makeCredential } from "../src/credentials.ts";
 import { validateReference } from "../src/reference-config.ts";
 import { createApp } from "../src/app.ts";
@@ -24,11 +24,11 @@ import { testIdentity } from "../tests/helpers.ts";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../.."), front = resolve(root, "src/frontend");
 const runtime = runtimeConfig(), admin = createPool(runtime), nonce = randomBytes(8).toString("hex"), schema = "phase2_test_ui_" + nonce, pool = createPool(runtime, schema);
 const secretFile = resolve(front, ".private/ui-" + nonce + ".json"), controlFile = resolve(front, ".private/control-" + nonce + ".json"), statusFile = resolve(front, ".private/status-" + nonce + ".json");
-let created = false, server: Server | undefined, frontend: ReturnType<typeof spawn> | undefined, auth: ReturnType<typeof createAuth> | undefined, poll: ReturnType<typeof setInterval> | undefined;
+let created = false, server: Server | undefined, frontend: ReturnType<typeof spawn> | undefined, auth: ReturnType<typeof createDatabaseAuth> | undefined, poll: ReturnType<typeof setInterval> | undefined;
 const ownFiles: string[] = [];
 async function fingerprint() {
   const hashes: string[] = [];
-  for (const table of ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration"]) {
+  for (const table of ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration", "service_center"]) {
     const values = (await admin.query("SELECT to_jsonb(t)::text AS v FROM public." + table + " t")).rows.map(r => r.v).sort(); hashes.push(createHash("sha256").update(values.join("\n")).digest("hex"));
   }
   return JSON.stringify(hashes);
@@ -38,6 +38,7 @@ async function closeBackend() { if (server?.listening) { server.closeAllConnecti
 const publicBefore = await fingerprint();
 try {
   const dbInfo = await checkDatabase(admin); await admin.query('CREATE SCHEMA "' + schema + '"'); created = true; await migrate(pool);
+  await pool.query("INSERT INTO service_center(center_id,center_name) VALUES(3,'Test empty')");
   const identity = await testIdentity();
   // Chỉ trong harness cách ly: danh mục >100 để phát hiện UI bỏ sót trang E05.
   const reference = validateReference({ ...identity.config,
@@ -47,8 +48,8 @@ try {
   let businessInstant: string | null = null;
   const businessNow = () => businessInstant ? new Date(businessInstant) : new Date();
   function app(config = reference) {
-    auth = createAuth(config, credentials, { ttlSeconds: 3600, maxSessions: 100 });
-    const tickets = createTicketService(pool, config, businessNow);
+    auth = createDatabaseAuth(pool, config, credentials, { ttlSeconds: 3600, maxSessions: 100 });
+    const tickets = createTicketService(pool, businessNow);
     return createApp(auth, { customers: createCustomerService(pool), devices: createDeviceService(pool, config, businessNow) }, { catalog: createCatalogService(pool, config), warranty: createWarrantyService(pool, businessNow), tickets }, tickets);
   }
   let application = app(); server = createServer(application); const backendPort = await listen(server);
@@ -79,6 +80,15 @@ try {
         else if (command.action === "deactivate-category") {
           if (!Number.isSafeInteger(command.categoryId) || command.categoryId <= 0) throw new Error("Invalid test category");
           await pool.query("UPDATE issue_category SET is_active=false WHERE category_id=$1", [command.categoryId]);
+        }
+        else if (command.action === "advance-test-ticket") {
+          if (!Number.isSafeInteger(command.ticketId) || command.ticketId <= 0) throw new Error("Invalid test ticket");
+          // Chỉ fixture schema cách ly: mô phỏng dữ liệu bước sau, có log chuyển trạng thái.
+          await withTransaction(pool, async client => {
+            const result = await client.query("UPDATE ticket SET status='DA_PHAN_CONG' WHERE ticket_id=$1 AND status='MOI' RETURNING ticket_id", [command.ticketId]);
+            if (result.rowCount !== 1) throw new Error("Invalid test transition");
+            await client.query("INSERT INTO ticket_status_log(ticket_id,from_status,to_status,changed_at,changed_by,note) VALUES($1,'MOI','DA_PHAN_CONG',$2,21,'UI test fixture')", [command.ticketId, businessNow()]);
+          });
         }
         else if (command.action === "empty-products") {
           await closeBackend(); auth?.close();

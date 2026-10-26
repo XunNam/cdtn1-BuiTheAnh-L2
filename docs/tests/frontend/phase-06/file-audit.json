@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-25",
+  "method": "SHA-256 comparison with in-session filesystem snapshot before FE-06 edits; no Git commands",
+  "baselineFileCount": 344,
+  "scope": "Selected files in src/docs/scripts and listed root files; excludes node_modules, .next, .private, test-results, dist/build and Git data. Not a full repository security audit.",
+  "changedExistingFiles": [
+    "src/backend/scripts/ui-test.ts",
+    "src/frontend/README.md",
+    "src/frontend/app/globals.css",
+    "src/frontend/src/components/tickets/communication-history.tsx",
+    "src/frontend/src/components/tickets/ticket-detail.tsx",
+    "src/frontend/tests/api-client.test.ts",
+    "src/frontend/tests/browser/intake.spec.ts",
+    "src/frontend/tests/browser/l2.spec.ts",
+    "src/frontend/tests/browser/login.spec.ts",
+    "src/frontend/tests/browser/ticket-intake.spec.ts",
+    "src/frontend/tests/browser/tickets-read.spec.ts",
+    "docs/architecture-thuc-te.md",
+    "docs/thay-doi-thiet-ke.md",
+    "docs/plans/frontend-l2-implementation-plan.md",
+    "docs/plans/frontend-l2-verification-plan.md",
+    "README.md"
+  ],
+  "deletedExistingFiles": [
+    "src/frontend/src/components/legacy/ticket-actions.tsx"
+  ],
+  "addedFiles": [
+    "src/frontend/src/components/tickets/action-error.tsx",
+    "src/frontend/src/components/tickets/approval-form.tsx",
+    "src/frontend/src/components/tickets/communication-form.tsx",
+    "src/frontend/src/hooks/use-communication-history.ts",
+    "src/frontend/src/hooks/use-ticket-record.ts",
+    "src/frontend/src/lib/ticket-action-validation.ts",
+    "src/frontend/tests/browser/tickets-write.spec.ts",
+    "docs/progress/frontend/phase-06.md",
+    "docs/tests/frontend/phase-06/approval-conflict.png",
+    "docs/tests/frontend/phase-06/approval-recovered.png",
+    "docs/tests/frontend/phase-06/backend-offline.png",
+    "docs/tests/frontend/phase-06/browser-run.txt",
+    "docs/tests/frontend/phase-06/classification-1280.png",
+    "docs/tests/frontend/phase-06/classification-1920.png",
+    "docs/tests/frontend/phase-06/classification-375.png",
+    "docs/tests/frontend/phase-06/classification-768.png",
+    "docs/tests/frontend/phase-06/classification-empty.png",
+    "docs/tests/frontend/phase-06/classification-validation-375.png",
+    "docs/tests/frontend/phase-06/communication-saved-reload-error.png",
+    "docs/tests/frontend/phase-06/communication-uncertain.png",
+    "docs/tests/frontend/phase-06/detail-1280.png",
+    "docs/tests/frontend/phase-06/detail-1920.png",
+    "docs/tests/frontend/phase-06/detail-375.png",
+    "docs/tests/frontend/phase-06/detail-768.png",
+    "docs/tests/frontend/phase-06/detail-snapshot.png",
+    "docs/tests/frontend/phase-06/fe01-shell-375.png",
+    "docs/tests/frontend/phase-06/fe01-shell-768.png",
+    "docs/tests/frontend/phase-06/fe01-shell-desktop.png",
+    "docs/tests/frontend/phase-06/history-page-3.png",
+    "docs/tests/frontend/phase-06/intake-1280.png",
+    "docs/tests/frontend/phase-06/intake-1920.png",
+    "docs/tests/frontend/phase-06/intake-375.png",
+    "docs/tests/frontend/phase-06/intake-768.png",
+    "docs/tests/frontend/phase-06/intake-empty-catalog.png",
+    "docs/tests/frontend/phase-06/intake-pagination.png",
+    "docs/tests/frontend/phase-06/intake-recovered.png",
+    "docs/tests/frontend/phase-06/login-1280.png",
+    "docs/tests/frontend/phase-06/login-375.png",
+    "docs/tests/frontend/phase-06/login-768.png",
+    "docs/tests/frontend/phase-06/login-capacity.png",
+    "docs/tests/frontend/phase-06/login-invalid-credentials.png",
+    "docs/tests/frontend/phase-06/login-loading.png",
+    "docs/tests/frontend/phase-06/login-offline.png",
+    "docs/tests/frontend/phase-06/login-validation-mobile.png",
+    "docs/tests/frontend/phase-06/nfr01-local.json",
+    "docs/tests/frontend/phase-06/queue-1280.png",
+    "docs/tests/frontend/phase-06/queue-1920.png",
+    "docs/tests/frontend/phase-06/queue-375.png",
+    "docs/tests/frontend/phase-06/queue-768.png",
+    "docs/tests/frontend/phase-06/queue-filter-empty.png",
+    "docs/tests/frontend/phase-06/queue-manager.png",
+    "docs/tests/frontend/phase-06/screen-1-reception.png",
+    "docs/tests/frontend/phase-06/screen-2-ticket.png",
+    "docs/tests/frontend/phase-06/screen-3-approval.png",
+    "docs/tests/frontend/phase-06/state-empty-approval.png",
+    "docs/tests/frontend/phase-06/state-empty-history.png",
+    "docs/tests/frontend/phase-06/state-empty-reception.png",
+    "docs/tests/frontend/phase-06/state-loading-approval.png",
+    "docs/tests/frontend/phase-06/state-loading-intake.png",
+    "docs/tests/frontend/phase-06/state-loading-reception.png",
+    "docs/tests/frontend/phase-06/ticket-expired.png",
+    "docs/tests/frontend/phase-06/ticket-pending.png",
+    "docs/tests/frontend/phase-06/ticket-uncertain.png",
+    "docs/tests/frontend/phase-06/verification.md"
+  ],
+  "excludedSelf": "docs/tests/frontend/phase-06/file-audit.json",
+  "protectedFiles": {
+    "backendProduction": {
+      "count": 60,
+      "changed": []
+    },
+    "backendUiTestHarness": {
+      "count": 1,
+      "changed": [
+        "src/backend/scripts/ui-test.ts"
+      ]
+    },
+    "contractAndSchema": {
+      "count": 4,
+      "changed": []
+    },
+    "dependencies": {
+      "count": 5,
+      "changed": []
+    },
+    "previousEvidence": {
+      "count": 185,
+      "changed": []
+    },
+    "previousFrontendReports": {
+      "count": 5,
+      "changed": []
+    },
+    "authApiDtoFoundation": {
+      "count": 8,
+      "changed": []
+    },
+    "intakeFE03FE04": {
+      "count": 10,
+      "changed": []
+    },
+    "readLayoutFoundation": {
+      "count": 7,
+      "changed": []
+    },
+    "instructions": {
+      "count": 2,
+      "changed": []
+    },
+    "packagingAndRootScripts": {
+      "count": 7,
+      "changed": []
+    }
+  },
+  "expectedBackendTestChange": "Only scripts/ui-test.ts: file-controlled isolated fixture advances one test ticket MOI to DA_PHAN_CONG with status log in one transaction to verify APPROVAL_NOT_APPLICABLE. No production API/module/schema/config/seed changes.",
+  "expectedLegacyChange": "Replaced legacy/ticket-actions.tsx with CommunicationForm/ApprovalForm and separate read controllers; FE-06 implements validation/write confirmation/recovery.",
+  "publicDataVerification": "Real UI harness exited 0: 49 tests passed (1.8m), UI_FIXTURE_PUBLIC_PRESERVED."
+}

@@ -7,7 +7,7 @@ import { createPool, checkDatabase, withTransaction } from "../src/db.ts";
 import { runtimeConfig } from "../src/runtime-config.ts";
 import { migrate } from "../src/migrate.ts";
 import { seed } from "../src/seed.ts";
-import { createAuth } from "../src/auth.ts";
+import { createDatabaseAuth } from "../src/auth.ts";
 import { createApp } from "../src/app.ts";
 import { createCustomerService } from "../src/services/customers.service.ts";
 import { createDeviceService } from "../src/services/devices.service.ts";
@@ -19,7 +19,7 @@ import { validateReference } from "../src/reference-config.ts";
 import { timestamp } from "../src/domain/business-time.ts";
 import { testIdentity, serve } from "./helpers.ts";
 
-const names = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration"] as const;
+const names = ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration", "service_center"] as const;
 async function fingerprints(pool: Pool, tables: readonly typeof names[number][] = names) {
   const result: Record<string, { count: number; hash: string }> = {};
   for (const name of tables) {
@@ -32,7 +32,7 @@ async function stateHash(pool: Pool) { return createHash("sha256").update(JSON.s
 test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên thông L2", async t => {
   const runtime = runtimeConfig(), admin = createPool(runtime);
   const schema = "phase2_test_p5_" + process.pid + "_" + randomBytes(6).toString("hex"), pool = createPool(runtime, schema);
-  let created = false, live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createAuth> | undefined;
+  let created = false, live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createDatabaseAuth> | undefined;
   let clock = new Date("2026-09-28T10:00:00.123+07:00").getTime(); const now = () => new Date(clock);
   const publicBefore = await fingerprints(admin), seqBefore = (await admin.query("SELECT last_value::text,is_called FROM ticket_code_seq")).rows;
   try {
@@ -44,8 +44,8 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
     await pool.query("SELECT setval(pg_get_serial_sequence('ticket_communication','communication_id'),98,true)");
     // Adapter mutable chỉ cho test account bị vô hiệu hóa; config production vẫn frozen.
     const accounts = identity.config.accounts.map(a => ({ ...a }));
-    auth = createAuth({ ...identity.config, accounts }, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
-    const tickets = createTicketService(pool, identity.config, now);
+    auth = createDatabaseAuth(pool, { ...identity.config, accounts }, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
+    const tickets = createTicketService(pool, now);
     const services = { customers: createCustomerService(pool, now), devices: createDeviceService(pool, identity.config, now), now };
     const intake = { catalog: createCatalogService(pool, identity.config), warranty: createWarrantyService(pool, now), tickets };
     live = await serve(createApp(auth, services, intake, tickets));
@@ -116,10 +116,11 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
         const req = request(live!.url + "/api/tickets", { method: "GET", headers: { authorization: "Bearer " + tokens.ql_demo_ab, "content-length": "2", "content-type": "application/json" } }, res => { res.resume(); res.on("end", () => resolve(res.statusCode!)); }); req.on("error", reject); req.end("{}");
       }); assert.equal(status, 400);
       // Config test hợp lệ có center3 chưa có ticket, không thêm bảng/ghi config thật.
+      await pool.query("INSERT INTO service_center(center_id,center_name) VALUES(3,'Center test rỗng')");
       const emptyConfig = validateReference({ ...identity.config, centers: [...identity.config.centers, { center_id: 3, center_name: "Center test rỗng", is_active: true }],
         accounts: accounts.map(a => a.employee_id === 21 ? { ...a, active_center_id: 3, allowed_center_ids: [3] } : a) });
-      const emptyAuth = createAuth(emptyConfig, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
-      const emptyLive = await serve(createApp(emptyAuth, undefined, undefined, createTicketService(pool, emptyConfig, now)));
+      const emptyAuth = createDatabaseAuth(pool, emptyConfig, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
+      const emptyLive = await serve(createApp(emptyAuth, undefined, undefined, createTicketService(pool, now)));
       try {
         const signed = await emptyAuth.login("ql_demo_a", identity.password);
         const r = await api("GET", "/tickets", undefined, "", { authorization: "Bearer " + signed.access_token }, emptyLive.url);
@@ -151,7 +152,7 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
       assert.equal((await api("PATCH", "/customers/" + value.customer.customer_id + "/devices/" + value.device.device_id, { purchase_date: "2026-09-01" })).status, 200);
       const updated = await api("GET", path(value.ticket.ticket_id)); assert.equal(updated.body.data.purchase_date_snapshot, null); assert.equal(updated.body.data.approval_status, "CHO_PHE_DUYET");
       const changedConfig = validateReference({ ...identity.config, products: identity.config.products.map(p => ({ ...p, warranty_months: 36 })) });
-      const alternative = await serve(createApp(auth!, undefined, undefined, createTicketService(pool, changedConfig, () => new Date("2035-01-01T00:00:00+07:00"))));
+      const alternative = await serve(createApp(auth!, undefined, undefined, createTicketService(pool, () => new Date("2035-01-01T00:00:00+07:00"))));
       try { const r = await api("GET", path(value.ticket.ticket_id), undefined, "nv_demo_a", {}, alternative.url); assert.deepEqual(r.body.data, updated.body.data); }
       finally { await alternative.close(); }
       assert.deepEqual(await rawTicket(value.ticket.ticket_id), before);
@@ -228,7 +229,7 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
       assert.equal(await withTransaction(pool, c => ticketRepository.approve(c, value.ticket.ticket_id, [1], 22, now(), "Bỏ qua lock cũng không overwrite")), undefined);
       assert.deepEqual(await rawTicket(value.ticket.ticket_id), saved);
     });
-    await t.test("P5-I12 NFR02:9 yêu cầu trái quyền bị từ chối, hash7 bảng trước/sau từng lượt khớp", async () => {
+    await t.test("P5-I12 NFR02:9 yêu cầu trái quyền bị từ chối, hash8 bảng trước/sau từng lượt khớp", async () => {
       const endpoint = path(base.ticket.ticket_id) + "/warranty-approval", outside = path(center2.ticket.ticket_id) + "/warranty-approval";
       const evidence: { id: string; actor: string; center: number | null; expected: number; actual: number; before: string; after: string; pass: boolean }[] = [];
       async function verify(id: string, actor: string, center: number | null, expected: number, run: () => ReturnType<typeof api>) {
@@ -243,7 +244,7 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
       await verify("N05", "employee11 forged headers", 1, 403, () => api("POST", endpoint, {}, "nv_demo_a", { role: "QUAN_LY_TTBH", "x-employee-id": "21", "x-center-id": "2" }));
       await verify("N06", "employee11 forged body", 1, 403, () => api("POST", endpoint, { role: "QUAN_LY_TTBH", approved_by: 21 }, "nv_demo_a"));
       let authClock = 0;
-      const expiredAuth = createAuth(identity.config, identity.credentials, { ttlSeconds: 1, maxSessions: 100, now: () => authClock });
+      const expiredAuth = createDatabaseAuth(pool, identity.config, identity.credentials, { ttlSeconds: 1, maxSessions: 100, now: () => authClock });
       const expiredLive = await serve(createApp(expiredAuth, undefined, undefined, tickets));
       try {
         const signed = await expiredAuth.login("ql_demo_a", identity.password); authClock = 1000;
@@ -373,7 +374,7 @@ test("Phase 5 — HTTP + PostgreSQL: approval, communications, NFR02 và liên t
       const results = await Promise.all([...writes, ...reads]); results.slice(0, 8).forEach(r => assert.equal(r.status, 201));
       results.slice(8).forEach(r => { assert.equal(r.status, 200); assert.ok(r.body.meta.total < 100); assert.equal(r.body.data.length, r.body.meta.total); r.body.data.forEach((x: { center_id: number }) => assert.equal(x.center_id, 1)); assert.ok(!r.raw.includes(value.phone)); });
     });
-    await t.test("P5-I22 seed không ghi đè approval/communications/snapshot; vẫn6+1 bảng, public/sequence nguyên", async () => {
+    await t.test("P5-I22 seed không ghi đè approval/communications/snapshot; 6 lõi+center+registry, public/sequence nguyên", async () => {
       const before = await fingerprints(pool); await seed(pool, identity.config); assert.deepEqual(await fingerprints(pool), before);
       const tables = (await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema=current_schema() ORDER BY table_name")).rows.map(x => x.table_name); assert.deepEqual(tables, [...names].sort());
       assert.deepEqual(await fingerprints(admin), publicBefore); assert.deepEqual((await admin.query("SELECT last_value::text,is_called FROM ticket_code_seq")).rows, seqBefore);

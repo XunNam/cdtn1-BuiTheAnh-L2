@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import type { Principal } from "../auth.ts";
 import { requireCreateCenter, requireRole } from "../auth.ts";
-import type { ReferenceConfig } from "../reference-config.ts";
+import { serviceCenterRepository } from "../repositories/service-centers.repository.ts";
 import type { NewTicket } from "../ticket.validation.ts";
 import { AppError, validationError } from "../errors.ts";
 import { withTransaction } from "../db.ts";
@@ -32,7 +32,7 @@ export function ensureApprovalApplicable(row: Pick<TicketRow, "warranty_status" 
 function internalWriteError(error: unknown, message: string): never {
   const failure = new AppError("INTERNAL_ERROR", message); failure.cause = error; throw failure;
 }
-export function createTicketService(pool: Pool, config: ReferenceConfig, now = () => new Date(), tickets = ticketRepository, communications = communicationRepository) {
+export function createTicketService(pool: Pool, now = () => new Date(), tickets = ticketRepository, communications = communicationRepository) {
   return {
     async list(principal: Principal, approval: "CHO_PHE_DUYET" | "DA_PHE_DUYET", page: number, size: number) {
       requireRole(principal, ["QUAN_LY_TTBH"]);
@@ -75,9 +75,9 @@ export function createTicketService(pool: Pool, config: ReferenceConfig, now = (
     async create(principal: Principal, input: NewTicket) {
       const center = employeeCenter(principal);
       requireCreateCenter(principal, input.center_id);
-      if (!config.centers.some(c => c.center_id === center && c.is_active))
-        throw new AppError("ROLE_FORBIDDEN", "Trung tâm không thuộc phạm vi thao tác.");
       return withTransaction(pool, async client => {
+        if (!await serviceCenterRepository.isActive(client, center, true))
+          throw new AppError("ROLE_FORBIDDEN", "Trung tâm không thuộc phạm vi thao tác.");
         const customer = await customerRepository.findById(client, input.customer_id, center, true);
         if (!customer || customer.deleted_at) missingCustomer();
         // Chỉ phân biệt sai chủ trong cùng scope. Ngoài scope/tombstone đều404.

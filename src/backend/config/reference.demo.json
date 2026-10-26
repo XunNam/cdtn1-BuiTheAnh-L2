@@ -1,17 +1,5 @@
 {
-  "config_version": 1,
-  "centers": [
-    {
-      "center_id": 1,
-      "center_name": "Trung tâm demo A",
-      "is_active": true
-    },
-    {
-      "center_id": 2,
-      "center_name": "Trung tâm demo B",
-      "is_active": true
-    }
-  ],
+  "config_version": 2,
   "products": [
     {
       "product_id": 101,

@@ -1,0 +1,68 @@
+{
+  "verifiedAt": "2026-10-25T09:53:22.960176+00:00",
+  "phase": "FE-07",
+  "result": "PASS",
+  "localFullRegression": {
+    "exitCode": 0,
+    "backendUnitHttp": 94,
+    "postgresNodeTests": 95,
+    "postgresLeafCases": 90,
+    "postgresParentGroups": 5,
+    "frontendClient": 45,
+    "browser": 53
+  },
+  "finalFrontend": {
+    "lintExitCode": 0,
+    "lintWarnings": 0,
+    "buildExitCode": 0,
+    "routes": 9,
+    "browserExitCode": 0,
+    "browserPassed": 53
+  },
+  "container": {
+    "exitCode": 0,
+    "backendUnitHttp": 94,
+    "postgresNodeTests": 95,
+    "frontendClient": 45,
+    "browser": 53,
+    "publicFingerprintPreserved": true,
+    "runtime": [
+      "v24.22.1",
+      "postgres (PostgreSQL) 18.6"
+    ]
+  },
+  "nfr01": {
+    "measuredAt": "2026-10-25T09:43:31.474Z",
+    "ticketCount": 200,
+    "count": 100,
+    "passed": 100,
+    "p50": 46.899999998509884,
+    "p95": 48.30000000447035,
+    "max": 48.900000005960464,
+    "thresholdMs": 1500,
+    "result": "PASS"
+  },
+  "nfr02": {
+    "result": "PASS",
+    "rejectedWithoutWrites": 9
+  },
+  "nfr03": {
+    "result": "PASS",
+    "preparedConfigBeforeStartup": true,
+    "startupCommands": 2,
+    "healthyServices": 3,
+    "apiSmoke": true,
+    "browserSmoke": true,
+    "sessionInvalidationAndPersistence": true,
+    "project": "mekong-fe07-20261025",
+    "stoppedAfterVerification": true,
+    "volumesPreserved": true,
+    "separateFilesystemCopyCleanRoom": "NOT RUN in FE-07"
+  },
+  "limitations": [
+    "Chromium simulated viewports; no Firefox/Safari/real-device or comprehensive WCAG audit",
+    "Finite local timing, not production load test",
+    "GAP-01–10 and prototype session/write-recovery limits retained",
+    "No student AI review/Git/submission/full BT3 confirmation"
+  ]
+}

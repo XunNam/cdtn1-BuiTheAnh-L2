@@ -1,6 +1,6 @@
 # Kế hoạch triển khai Frontend L2 — Mekong Mobile
 
-Ngày lập: **25/10/2026**. Cập nhật thực thi: **FE-01/02/03/04 hoàn thành ngày 25/10/2026; FE-05–07 chưa bắt đầu**. Xem [báo cáo FE-01](../progress/frontend/phase-01.md), [FE-02](../progress/frontend/phase-02.md), [FE-03](../progress/frontend/phase-03.md), [FE-04](../progress/frontend/phase-04.md) cho kết quả thực tế; mô tả các phase tiếp theo vẫn là kế hoạch.
+Ngày lập: **25/10/2026**. Cập nhật thực thi: **FE-01–07 hoàn thành ngày 25/10/2026**. Xem [FE-01](../progress/frontend/phase-01.md), [FE-02](../progress/frontend/phase-02.md), [FE-03](../progress/frontend/phase-03.md), [FE-04](../progress/frontend/phase-04.md), [FE-05](../progress/frontend/phase-05.md), [FE-06](../progress/frontend/phase-06.md) và [FE-07](../progress/frontend/phase-07.md) cho kết quả thực tế; nội dung các phase bên dưới được giữ để truy vết kế hoạch ban đầu.
 
 Mục tiêu: hoàn thiện **màn hình đăng nhập và ba màn hình nghiệp vụ** theo wireframe Figma, sử dụng backend L2 hiện có, để Codex có thể thực hiện từng giai đoạn độc lập và kiểm chứng được.
 
@@ -292,9 +292,9 @@ Sau 201 hiển thị mã/ID phiếu, status/warranty/approval/can_proceed và h�
 | FE-02 | COMPLETE — 25/10/2026 | [phase-02.md](../progress/frontend/phase-02.md) |
 | FE-03 | COMPLETE | [Báo cáo FE-03](../progress/frontend/phase-03.md) |
 | FE-04 | COMPLETE | [Báo cáo FE-04](../progress/frontend/phase-04.md) |
-| FE-05 | NOT STARTED | `docs/progress/frontend/phase-05.md` |
-| FE-06 | NOT STARTED | `docs/progress/frontend/phase-06.md` |
-| FE-07 | NOT STARTED | `docs/progress/frontend/phase-07.md` |
+| FE-05 | COMPLETE | [Báo cáo FE-05](../progress/frontend/phase-05.md) |
+| FE-06 | COMPLETE | [Báo cáo FE-06](../progress/frontend/phase-06.md) |
+| FE-07 | COMPLETE | [Báo cáo FE-07](../progress/frontend/phase-07.md) |
 
 Ví dụ yêu cầu cho phiên sau:
 

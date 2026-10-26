@@ -47,9 +47,9 @@ export async function startManual(port = 3002, phase: 3 | 4 | 5 = 3) {
     await admin.query('CREATE SCHEMA "' + schema + '"'); created = true;
     pool = createPool(runtime, schema);
     await migrate(pool);
-    await seed(pool, await loadReference(runtime.referenceFile));
+    await seed(pool, await loadReference(runtime.referenceFile, pool));
     const foundation = await prepareFoundation(pool, runtime); auth = foundation.auth;
-    const tickets = createTicketService(pool, foundation.reference);
+    const tickets = createTicketService(pool);
     const app = createApp(auth, { customers: createCustomerService(pool), devices: createDeviceService(pool, foundation.reference) }, phase >= 4 ? {
       catalog: createCatalogService(pool, foundation.reference), warranty: createWarrantyService(pool), tickets,
     } : undefined, phase === 5 ? tickets : undefined);

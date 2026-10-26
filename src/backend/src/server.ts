@@ -16,7 +16,7 @@ export async function startServer(config: RuntimeConfig = runtimeConfig()) {
   let foundation: Awaited<ReturnType<typeof prepareFoundation>> | undefined;
   try {
     foundation = await prepareFoundation(pool, config);
-    const tickets = createTicketService(pool, foundation.reference);
+    const tickets = createTicketService(pool);
     const app = createApp(foundation.auth, { customers: createCustomerService(pool), devices: createDeviceService(pool, foundation.reference) }, {
       catalog: createCatalogService(pool, foundation.reference), warranty: createWarrantyService(pool), tickets,
     }, tickets);

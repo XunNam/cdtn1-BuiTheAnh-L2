@@ -97,12 +97,11 @@ export function ClassificationForm({ api, customer, device, principal, onPhase, 
 
   const displayError = error instanceof ApiError ? new ApiError(error.status, error.code, error.message) : error;
   return <div className="classification-form">
-    <p>{customer.full_name} · {customer.phone} · Serial/IMEI: {device.serial_no}</p>
-    <div className="warranty-region" role="region" aria-label="Kiểm tra bảo hành">
-      <ReadState state={warranty}>{value => <WarrantyPreview value={value} />}</ReadState>
-    </div>
     <form onSubmit={submit} method="post" noValidate>
-      <fieldset disabled={busy || uncertain}>
+      <fieldset className="classification-grid" disabled={busy || uncertain}>
+        <div className="intake-card classification-fields">
+        <h3>03 · Mô tả lỗi và phân loại</h3>
+        <p className="field-hint">{customer.full_name} · {customer.phone} · Serial/IMEI: {device.serial_no}</p>
         <label htmlFor="ticket-issue">Mô tả lỗi</label>
         <textarea id="ticket-issue" ref={issueInput} required value={issue} onChange={event => setIssue(event.target.value)}
           aria-invalid={Boolean(fields.issue_desc)} aria-describedby={"ticket-issue-count" + (fields.issue_desc ? " ticket-issue-error" : "")} />
@@ -128,6 +127,12 @@ export function ClassificationForm({ api, customer, device, principal, onPhase, 
         </select>
         <p id="ticket-priority-hint" className="field-hint">Hạn cam kết tính theo mức ưu tiên, chỉ tính thứ Hai đến thứ Bảy; hệ thống xác định khi tạo phiếu.</p>
         <FieldError id="ticket-priority-error" message={fields.priority} />
+        </div>
+        <div className="intake-card classification-review">
+        <h3>04 · Kiểm tra và tạo phiếu</h3>
+        <div className="warranty-region" role="region" aria-label="Kiểm tra bảo hành">
+          <ReadState state={warranty}>{value => <WarrantyPreview value={value} />}</ReadState>
+        </div>
         <div className="intake-summary">
           <h3>Tóm tắt tiếp nhận</h3>
           <dl>
@@ -144,6 +149,7 @@ export function ClassificationForm({ api, customer, device, principal, onPhase, 
         <div className="intake-actions">
           <button type="submit" disabled={!ready || resourceChanged}>{busy ? "Đang tạo phiếu…" : "Tạo phiếu bảo hành"}</button>
           <button type="button" className="secondary" onClick={cancel}>Hủy nhập</button>
+        </div>
         </div>
       </fieldset>
     </form>

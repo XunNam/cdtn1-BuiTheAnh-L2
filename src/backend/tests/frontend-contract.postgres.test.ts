@@ -6,7 +6,7 @@ import { createPool, checkDatabase } from "../src/db.ts";
 import { runtimeConfig } from "../src/runtime-config.ts";
 import { migrate } from "../src/migrate.ts";
 import { seed } from "../src/seed.ts";
-import { createAuth } from "../src/auth.ts";
+import { createDatabaseAuth } from "../src/auth.ts";
 import { createApp } from "../src/app.ts";
 import { createCustomerService } from "../src/services/customers.service.ts";
 import { createDeviceService } from "../src/services/devices.service.ts";
@@ -17,12 +17,12 @@ import { testIdentity, serve } from "./helpers.ts";
 
 test("Phase6 —12 case BT2, API client ↔ Express ↔ PostgreSQL thật", async t => {
   const runtime = runtimeConfig(), admin = createPool(runtime), schema = "phase2_test_p6_" + randomBytes(8).toString("hex"), pool = createPool(runtime, schema);
-  let created = false, live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createAuth> | undefined;
+  let created = false, live: Awaited<ReturnType<typeof serve>> | undefined, auth: ReturnType<typeof createDatabaseAuth> | undefined;
   const fixed = new Date("2026-09-28T09:00:00+07:00");
   const evidence: { id: string; type: string; actual: string; result: string }[] = [];
   async function publicHash() {
     const hashes: string[] = [];
-    for (const name of ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration"]) {
+    for (const name of ["customer", "device", "issue_category", "ticket", "ticket_status_log", "ticket_communication", "schema_migration", "service_center"]) {
       const values = (await admin.query("SELECT to_jsonb(t)::text AS value FROM " + name + " t")).rows.map(r => r.value).sort();
       hashes.push(createHash("sha256").update(values.join("\n")).digest("hex"));
     }
@@ -32,8 +32,8 @@ test("Phase6 —12 case BT2, API client ↔ Express ↔ PostgreSQL thật", asyn
   try {
     await checkDatabase(admin); await admin.query('CREATE SCHEMA "' + schema + '"'); created = true; await migrate(pool);
     const identity = await testIdentity(); await seed(pool, identity.config);
-    auth = createAuth(identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
-    const ticketService = createTicketService(pool, identity.config, () => fixed);
+    auth = createDatabaseAuth(pool, identity.config, identity.credentials, { ttlSeconds: 3600, maxSessions: 100 });
+    const ticketService = createTicketService(pool, () => fixed);
     live = await serve(createApp(auth, { customers: createCustomerService(pool, () => fixed), devices: createDeviceService(pool, identity.config, () => fixed), now: () => fixed },
       { catalog: createCatalogService(pool, identity.config), warranty: createWarrantyService(pool, () => fixed), tickets: ticketService }, ticketService));
     const nv = createApiClient({ baseUrl: live.url + "/api" }), manager = createApiClient({ baseUrl: live.url + "/api" }), managerAB = createApiClient({ baseUrl: live.url + "/api" }), nvB = createApiClient({ baseUrl: live.url + "/api" });

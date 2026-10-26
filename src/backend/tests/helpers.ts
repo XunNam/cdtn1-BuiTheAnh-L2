@@ -7,7 +7,9 @@ import { makeCredential } from "../src/credentials.ts";
 import type { Credential } from "../src/credentials.ts";
 
 export async function referenceInput() {
-  return JSON.parse(await readFile(new URL("../config/reference.demo.json", import.meta.url), "utf8"));
+  const input = JSON.parse(await readFile(new URL("../config/reference.demo.json", import.meta.url), "utf8"));
+  // Fixture cho unit test; runtime lấy cùng danh mục từ service_center qua repository.
+  return { ...input, centers: [{ center_id: 1, center_name: "Trung tâm demo A", is_active: true }, { center_id: 2, center_name: "Trung tâm demo B", is_active: true }] };
 }
 export async function testIdentity() {
   const config = validateReference(await referenceInput());

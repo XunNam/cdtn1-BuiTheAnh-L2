@@ -66,7 +66,7 @@ export function createApiClient(options: { baseUrl: string; onUnauthorized?: () 
     categories: () => request("/issue-categories", single(v => dto.array(v, dto.category))),
     warranty: (id: number, assessment?: string) => request("/devices/" + id + "/warranty" + (assessment ? "?assessment_date=" + encodeURIComponent(assessment) : ""), single(dto.warranty)),
     createTicket: (body: Pick<Ticket, "customer_id" | "device_id" | "center_id" | "issue_desc" | "category_id" | "priority">) => request("/tickets", single(dto.ticket), "POST", body),
-    tickets: (filter = "CHO_PHE_DUYET", page = 1) => request("/tickets?approval_status=" + encodeURIComponent(filter) + "&page=" + page + "&size=10", v => dto.page(v, dto.summary)),
+    tickets: (filter = "CHO_PHE_DUYET", page = 1, size = 10) => request("/tickets?approval_status=" + encodeURIComponent(filter) + "&page=" + page + "&size=" + size, v => dto.page(v, dto.summary)),
     detail: (id: number) => request("/tickets/" + id, single(dto.detail)),
     approve: (id: number, note: string | null) => request("/tickets/" + id + "/warranty-approval", single(dto.approval), "POST", { note }),
     communications: (id: number, page = 1) => request("/tickets/" + id + "/communications?page=" + page + "&size=10", v => dto.page(v, dto.communication)),

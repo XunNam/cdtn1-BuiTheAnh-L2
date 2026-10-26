@@ -1,0 +1,107 @@
+{
+  "database": "mekong-mobile-l2",
+  "data": {
+    "customer": {
+      "count": 30,
+      "sha256": "420212db9bcc9b543fcfb33c486c17f47c6102163505cd23593b0a19e576bf44"
+    },
+    "device": {
+      "count": 30,
+      "sha256": "d359873ef5f1be6ce8e234407e9622962d8cd47d10724a8f217f1fab9ca26e4d"
+    },
+    "issue_category": {
+      "count": 6,
+      "sha256": "ecaf59dce405d43c45f71ac5321256a2cd3927a1f0ddb5306a811835b4326cc8"
+    },
+    "ticket": {
+      "count": 200,
+      "sha256": "4561fa726d4673b5e182487defb55ddb7ecd2989549cd10a94337cdcf3dfc4c4"
+    },
+    "ticket_status_log": {
+      "count": 200,
+      "sha256": "c6adefd74c8fdab895c98d23384911c6f7a3bc038bd0dba4a3d0e59f10d3c3c6"
+    },
+    "ticket_communication": {
+      "count": 30,
+      "sha256": "567c3bf8e1ca5a4c36afca64ae3ee9d9e183bc76f723b0272cc805892bf513a9"
+    }
+  },
+  "migrations": [
+    {
+      "version": 1,
+      "name": "001_core_schema.sql",
+      "checksum": "712160011fd49b00c4b1e51fd1e585050c4be01969d74242858cbd5a4974934d"
+    },
+    {
+      "version": 2,
+      "name": "002_indexes_and_ticket_sequence.sql",
+      "checksum": "70ff42ff613eae2cd6b26ae6f0b55d1338c48b084e4e276ab1e4fe786ea657ee"
+    },
+    {
+      "version": 3,
+      "name": "003_service_centers.sql",
+      "checksum": "a25404966e75008196b49f1e6047bcaf676402fe580618123c7e134a81829e67"
+    }
+  ],
+  "sequences": [
+    {
+      "sequencename": "customer_customer_id_seq",
+      "last_value": "60"
+    },
+    {
+      "sequencename": "device_device_id_seq",
+      "last_value": "60"
+    },
+    {
+      "sequencename": "issue_category_category_id_seq",
+      "last_value": "12"
+    },
+    {
+      "sequencename": "ticket_code_seq",
+      "last_value": null
+    },
+    {
+      "sequencename": "ticket_communication_communication_id_seq",
+      "last_value": "30"
+    },
+    {
+      "sequencename": "ticket_status_log_log_id_seq",
+      "last_value": "200"
+    },
+    {
+      "sequencename": "ticket_ticket_id_seq",
+      "last_value": "400"
+    }
+  ],
+  "referencedCenterIds": [
+    {
+      "center_id": "1"
+    },
+    {
+      "center_id": "2"
+    }
+  ],
+  "centers": [
+    {
+      "center_id": "1",
+      "center_name": "Trung tâm demo A",
+      "is_active": true
+    },
+    {
+      "center_id": "2",
+      "center_name": "Trung tâm demo B",
+      "is_active": true
+    }
+  ],
+  "foreignKeys": [
+    {
+      "conname": "fk_customer_center",
+      "convalidated": true
+    },
+    {
+      "conname": "fk_ticket_center",
+      "convalidated": true
+    }
+  ],
+  "originalDataAndSequencesPreserved": true
+}

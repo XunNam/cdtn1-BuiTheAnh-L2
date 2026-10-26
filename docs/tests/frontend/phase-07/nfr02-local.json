@@ -1,0 +1,97 @@
+{
+  "source": "regression-run.txt / P5-I12",
+  "result": "PASS",
+  "rejectedWithoutWrites": 9,
+  "cases": [
+    {
+      "id": "N01",
+      "actor": "anonymous",
+      "center": null,
+      "expected": 401,
+      "actual": 401,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N02",
+      "actor": "invalid token",
+      "center": null,
+      "expected": 401,
+      "actual": 401,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N03",
+      "actor": "employee11",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N04",
+      "actor": "manager21 outside ticket center2",
+      "center": 1,
+      "expected": 404,
+      "actual": 404,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N05",
+      "actor": "employee11 forged headers",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N06",
+      "actor": "employee11 forged body",
+      "center": 1,
+      "expected": 403,
+      "actual": 403,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N07",
+      "actor": "manager21 expired token",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N08",
+      "actor": "manager21 deactivated session",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    },
+    {
+      "id": "N09",
+      "actor": "inactive_demo has no session",
+      "center": 1,
+      "expected": 401,
+      "actual": 401,
+      "before": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "after": "c6571ff0bc3b1adc0a16b6dc093e54b20f78329e2bab60a753bc8959f0fafe42",
+      "pass": true
+    }
+  ]
+}
