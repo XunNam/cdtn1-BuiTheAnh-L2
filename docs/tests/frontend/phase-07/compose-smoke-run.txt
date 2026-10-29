@@ -1,1 +1,0 @@
-{"compose_api_smoke":"PASS","login":true,"endpoints":"E01–E13","CRUD":true,"history":true}

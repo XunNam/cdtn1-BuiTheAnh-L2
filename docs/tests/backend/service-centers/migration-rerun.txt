@@ -1,3 +1,0 @@
-npm notice run backend@1.0.0 db:migrate
-npm notice run node --env-file=.env src/cli.ts migrate
-{"applied_versions":[]}
