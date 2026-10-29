@@ -61,5 +61,9 @@ export async function assertMigrationsCurrent(pool: Pool): Promise<void> {
   const applied = (await pool.query<{ version: number; name: string; checksum: string }>("SELECT version,name,checksum FROM schema_migration ORDER BY version")).rows;
   const migrations = await readMigrations();
   validateApplied(applied, migrations);
-  if (applied.length !== migrations.length) configurationError("Còn migration chưa áp dụng.");
+  // TD-23: CRUD/DTO hiện hành không đọc email. Trong thời gian chuẩn bị CSV,
+  // chỉ migration cộng thêm 004 được phép pending; importer tự yêu cầu schema mới.
+  const pending = migrations.slice(applied.length);
+  if (pending.length && !(applied.length === 3 && pending.length === 1 && pending[0]!.name === "004_customer_email.sql"))
+    configurationError("Còn migration chưa áp dụng.");
 }

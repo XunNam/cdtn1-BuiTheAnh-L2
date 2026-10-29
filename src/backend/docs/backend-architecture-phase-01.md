@@ -178,3 +178,9 @@ Không còn quyết định thiết kế được duyệt nào phải hỏi lạ
 ## 8. Lịch sử ngắn
 
 Lượt đầu hoàn thành phần độc lập; lượt DEP-A chốt config; lượt hiện tại chốt các DD/AUTH/CRUD, schema/phụ lục và bỏ config fingerprint. Bản kiến trúc hiện hành thay thế các phương án đang chờ duyệt cũ, không duy trì nhiều kiến trúc thay thế trong baseline.
+
+## 9. CSV-03 / TD-23 — triển khai 26/10/2026
+
+Các phần Phase1 bên trên là baseline lịch sử; centers đã chuyển SQL ở SC-DB. CSV-03 thêm customer.email nullable qua004 và nhánh `CLI → ImportService → ImportRepository → PostgreSQL`, cùng ReceiptStore private. Không public endpoint/bảng mới, không thay luật tiếp nhận/bảo hành hoặc DTO/CRUD.
+
+Batch cùng transaction, advisory lock giữ qua receipt, journal fsync/rename trước COMMIT và đối chiếu PostgreSQL transaction status khi kết quả chưa rõ. Chỉ mappings tin cậy cho phép reuse; giữ local edits/tombstone, identity/owner/product/months sai thì dừng. Startup hỗ trợ003/004; importer cần email/catalog đúng, CLI public apply chưa mở. [Thiết kế hiện hành](customer-device-import.md), [TD-23](../../../docs/thay-doi-thiet-ke.md), [minh chứng](../../../docs/progress/data-import/csv-03.md).

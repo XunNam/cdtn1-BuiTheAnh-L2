@@ -10,15 +10,13 @@
 | Case study | **Smart CRM — Mekong Mobile** |
 | Luồng nghiệp vụ | **L2 — Tiếp nhận và phân loại yêu cầu bảo hành** |
 
-## 1. Mục tiêu và trạng thái dự án
+## 1. Mục tiêu và phạm vi mã nguồn
 
 Prototype giúp nhân viên tra cứu/tạo khách hàng, ghi nhận thiết bị và mô tả lỗi, chọn nhóm sự cố và mức ưu tiên để tạo phiếu bảo hành **Mới**. Backend kiểm tra bảo hành, tính hạn cam kết và lưu lịch sử; quản lý phê duyệt trường hợp thiếu ngày mua, nhân viên ghi trao đổi với khách hàng. Giao diện đăng nhập và ba màn hình nghiệp vụ dùng API/PostgreSQL thật. Phạm vi kết thúc ở tiếp nhận và phê duyệt ngoại lệ; chưa triển khai phân công, sửa chữa, kho hoặc thanh toán.
 
-- [x] Backend và frontend đã hoàn thành lộ trình triển khai.
-- [x] Migration/seed, đăng nhập, phân quyền, kiểm thử và Docker đã có minh chứng.
-- [x] Hai trung tâm demo đã chuyển sang PostgreSQL bằng migration `003_service_centers.sql`.
-- [ ] Chưa import bộ CSV của học phần; ứng dụng **đã chạy được bằng dữ liệu mẫu có sẵn**.
-- [ ] Nghiệm thu cá nhân, Git/tag/push và nộp bài do sinh viên thực hiện, chưa xác nhận trong README.
+Phạm vi đưa lên GitHub gồm mã nguồn L2, migration/seed, cấu hình chạy local/Docker, lockfile, README và mã kiểm thử L2 cùng fixture cần thiết. Tài liệu học phần, kế hoạch, báo cáo, ảnh minh chứng, dataset gốc, công cụ chuyển đổi/import CSV và cấu hình cá nhân được giữ cục bộ, loại khỏi Git bằng `.gitignore`.
+
+Ứng dụng khởi tạo dữ liệu mẫu bằng seed, không cần dataset bên ngoài để chạy. Database đã có trên máy phát triển và Docker là hai môi trường riêng; dữ liệu không được đóng gói cùng mã nguồn và không tự đồng bộ. Việc loại file khỏi Git không thay đổi database hoặc credential hiện có.
 
 ## 2. Nên chọn Docker hay chạy trực tiếp trên Windows?
 
@@ -104,13 +102,13 @@ Sau đó nạp dữ liệu mẫu:
 npm --prefix src/backend run db:seed
 ```
 
-**Migration phải chạy trước tạo credential**, vì danh mục trung tâm nằm trong DB. Không tạo lại hoặc xóa credential hiện có. Migration/seed chạy lại không nhân đôi bản ghi hoặc ghi đè chỉnh sửa vận hành; không chạy `docs/schema.sql` trực tiếp lên DB đã có bảng.
+**Migration phải chạy trước tạo credential**, vì danh mục trung tâm nằm trong DB. Không tạo lại hoặc xóa credential hiện có. Migration/seed chạy lại không nhân đôi bản ghi hoặc ghi đè chỉnh sửa vận hành; dùng các lệnh migration thay vì chạy DDL thủ công lên DB đã có bảng.
 
 ### Bước 4 — Mở hai terminal và chạy
 
 Làm theo mục 3: `npm run backend` ở terminal 1, `npm run frontend` ở terminal 2, rồi mở [localhost:3000](http://localhost:3000).
 
-Nếu chỉ cập nhật từ bản có migration 001/002, chạy `npm --prefix src/backend run db:migrate` rồi khởi động lại backend; không cần tạo lại password hoặc seed để chuyển trung tâm. Trên máy phát triển hiện tại, migration 003 đã được áp dụng.
+Nếu chỉ cập nhật từ bản có migration001/002/003, chạy `npm --prefix src/backend run db:migrate` rồi khởi động lại backend; không cần tạo lại password hoặc seed để cập nhật cấu trúc. Giữ toàn bộ migration hiện có, bao gồm `004_customer_email.sql`, để tương thích database đã khởi tạo; migration không tự import CSV.
 
 </details>
 
@@ -174,6 +172,8 @@ Không thêm `-v` vào lệnh `down` khi muốn giữ database/password. Databas
 
 Môi trường mới được khởi tạo với **2 trung tâm, 30 khách hàng, 30 thiết bị, 6 nhóm sự cố, 200 phiếu, 200 log trạng thái và 30 trao đổi**. Dữ liệu tăng thêm khi thao tác được giữ trong PostgreSQL; không cần import bộ CSV bên ngoài để sử dụng prototype.
 
+Database Windows đã có dữ liệu vẫn tiếp tục dùng dữ liệu đó. Clone mới và Docker không tự có tập dữ liệu đã nhập trên một máy khác.
+
 | Nội dung | Windows trực tiếp | Docker |
 | --- | --- | --- |
 | PostgreSQL | Dịch vụ PostgreSQL đã cài trên Windows | Container `database`, volume `pgdata` |
@@ -182,7 +182,7 @@ Môi trường mới được khởi tạo với **2 trung tâm, 30 khách hàng
 | Khi sửa code | Các tiến trình dev theo dõi thay đổi | Chạy lại `up --build` để cập nhật image |
 | Khi dừng/chạy lại | Giữ database local | Giữ volume nếu không xóa volume |
 
-Trung tâm được lưu trong `service_center`, có FK từ customer/ticket. Products/accounts/membership còn dùng config tin cậy. Sáu trung tâm trong CSV chưa được nạp; việc chuyển hai trung tâm hiện có đã có [báo cáo riêng](docs/progress/backend/service-centers-postgresql.md).
+Trung tâm được lưu trong `service_center`, có FK từ customer/ticket. Products/accounts/membership dùng config `src/backend/config/reference.demo.json`; file này cần được giữ cùng mã nguồn để seed, đăng nhập và chọn thiết bị.
 
 ## 6. Đăng nhập và thử một luồng hoàn chỉnh
 
@@ -205,7 +205,7 @@ Mật khẩu xem đúng file của môi trường đang chạy ở mục 5; khô
 
 Đường dẫn chính: `/login`, `/intake`, `/tickets`, `/tickets/{ticketId}`. Nhân viên mở phiếu bằng ID; quản lý có hàng chờ. Reload/F5, tab mới hoặc backend restart cần đăng nhập lại vì phiên chỉ lưu trong RAM. Link/menu bên trong ứng dụng giữ phiên.
 
-## 7. Kiểm thử và minh chứng
+## 7. Kiểm thử L2
 
 ### Windows
 
@@ -223,11 +223,15 @@ $env:L2_UI_OUTPUT_DIR = Join-Path (Get-Location) ("docs/tests/manual-runs/" + (G
 
 Lệnh kiểm thử đầy đủ từ root:
 
+Trên checkout mới, chạy `npm --prefix src/frontend run build` một lần để sinh `next-env.d.ts` và các kiểu route trước bước typecheck. Các file sinh tự động này không đưa vào Git.
+
 ```powershell
 npm test
 ```
 
-Lệnh chạy backend typecheck/unit/HTTP/PostgreSQL/build → frontend typecheck/lint/client/build → kiểm thử trình duyệt. Test tự tạo/dọn schema, credential và cổng riêng; không cần nạp dataset vào public. Không gọi Playwright trực tiếp khi thiếu fixture của harness. Sau build, có thể chạy UI riêng bằng `npm run test:ui`. Trên Linux cần cài Chromium với `--with-deps` theo [README frontend](src/frontend/README.md).
+Lệnh chạy backend typecheck/unit/HTTP/PostgreSQL/build → frontend typecheck/lint/client/build → kiểm thử trình duyệt. Test tự tạo/dọn schema, credential và cổng riêng; không cần nạp dataset vào public. Không gọi Playwright trực tiếp khi thiếu fixture của harness. Sau build, có thể chạy UI riêng bằng `npm run test:ui`. Trên Linux, cài Chromium bằng `npm --prefix src/frontend exec -- playwright install --with-deps chromium`.
+
+Giữ `src/backend/tests/fixtures/reference.base.json`: các test L2 dùng fixture nhỏ này, độc lập với catalog vận hành. Các lệnh và test riêng của bộ import CSV không thuộc bộ kiểm thử trong repository. Ảnh/log do test tạo nằm trong thư mục được ignore.
 
 ### Docker
 
@@ -239,29 +243,18 @@ docker compose --env-file .env.compose --profile checks run --build --rm verify
 
 Lần đầu tải Chromium/thư viện hệ thống. Kết quả hiện trong terminal; container verify dùng schema riêng và được xóa sau khi chạy.
 
-### Kết quả đã xác minh
-
-Lượt cập nhật trung tâm ngày **25/10/2026** đạt **96 backend unit/HTTP, 103 PostgreSQL (gồm 6 nhóm cha), 45 client và 53 browser tests**. Docker đã kiểm build, API/UI production và restart; full profile verify đã có minh chứng FE-07 trước thay đổi trung tâm, chưa chạy lại full profile ở lượt chuyển trung tâm. README cập nhật ngày **26/10/2026**; sửa hướng dẫn không đồng nghĩa chạy lại các bộ test trên.
-
-| Hồ sơ | Xem ở đâu? |
-| --- | --- |
-| Chuyển trung tâm sang DB và kiểm dữ liệu giữ nguyên | [Báo cáo](docs/progress/backend/service-centers-postgresql.md) · [Minh chứng](docs/tests/backend/service-centers/verification.md) |
-| Bàn giao frontend FE-01–07 | [FE-07](docs/progress/frontend/phase-07.md) · [Minh chứng](docs/tests/frontend/phase-07/verification.md) |
-| Tích hợp/đóng gói nền tảng | [Backend Phase 6](docs/progress/backend/phase-06.md) · [12 case BT2](docs/tests/bt2-test-evidence.md) · [NFR](docs/tests/nfr-evidence.md) |
-
 ## 8. Cấu trúc và môi trường dự án
 
 ```text
 src/backend/       API Express, service, repository, migration, seed, tests
 src/frontend/      Giao diện Next.js/React, API client, kiểm thử trình duyệt
-scripts/           Lệnh kiểm thử tổng hợp và smoke test Compose
-docs/              SRS, API, schema, kiến trúc, kế hoạch, báo cáo và minh chứng
+scripts/test-all.mjs Lệnh kiểm thử tổng hợp L2
 compose.yaml       Ba dịch vụ ứng dụng và profile kiểm thử
 Dockerfile         Build các image backend/frontend/verify
 .env.example       Cấu hình mẫu dành cho Compose
 ```
 
-| Thành phần | Phiên bản đã kiểm thử |
+| Thành phần | Phiên bản / cấu hình |
 | --- | --- |
 | Máy phát triển | Windows 11, Node.js 24.18.0, npm 12.1.0, PostgreSQL 18.6 |
 | Frontend | Next.js 16.4.2, React 19.3.0, TypeScript |
@@ -283,10 +276,7 @@ Các phiên bản trong ví dụ slide học phần không thay thế yêu cầu
 | Đăng nhập sai sau khi chuyển Windows/Docker | Xem đúng file password của môi trường ở mục 5; password DB không phải password đăng nhập ứng dụng |
 | Không thấy dữ liệu vừa tạo khi đổi cách chạy | Hai database riêng; quay lại đúng môi trường đã tạo dữ liệu |
 | F5 bị yêu cầu đăng nhập lại | Đây là giới hạn phiên RAM hiện tại; đăng nhập lại, dùng menu để chuyển trang trong cùng phiên |
-| Trung tâm ngừng làm backend không khởi động | Startup kiểm account hoạt động/active center; xem chính sách và cách xử lý tại [báo cáo trung tâm](docs/progress/backend/service-centers-postgresql.md) |
 
-## 10. Tài liệu thiết kế và giới hạn
+## 10. Giới hạn
 
-[SRS](docs/srs.md) · [API Contract](docs/api-contract-l2.md) · [Phụ lục đăng nhập/CRUD](docs/api-contract-l2-extension.md) · [Kiến trúc](docs/architecture-thuc-te.md) · [Thay đổi thiết kế](docs/thay-doi-thiet-ke.md) · [Khai báo AI](docs/ai-disclosure.md).
-
-Backend luôn kiểm role/center. Hết hạn bảo hành vẫn có thể được tiếp nhận theo thiết kế, không đồng nghĩa sửa chữa miễn phí. POST mất phản hồi không tự gửi lại; E08 chưa có idempotency/tra cứu chắc chắn theo bản nhập. Prototype chạy local, chưa có refresh/revoke token, quản trị tài khoản/trung tâm hoặc triển khai production. Các giới hạn và trách nhiệm nghiệm thu được ghi trong báo cáo; không tuyên bố đã nộp BT2 hoặc hoàn thành toàn bộ rubric BT3.
+Backend luôn kiểm role/center. Hết hạn bảo hành vẫn có thể được tiếp nhận theo thiết kế, không đồng nghĩa sửa chữa miễn phí. POST mất phản hồi không tự gửi lại; E08 chưa có idempotency/tra cứu chắc chắn theo bản nhập. Prototype chạy local, chưa có refresh/revoke token, quản trị tài khoản/trung tâm hoặc triển khai production. Việc có mã nguồn và hướng dẫn chạy không đồng nghĩa đã nghiệm thu hoặc hoàn thành toàn bộ rubric học phần.

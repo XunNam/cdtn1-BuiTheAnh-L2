@@ -174,3 +174,17 @@ Kết quả cuối tại [phase-06.md](phase-06.md). Git/commit/tag/nộp bài v
 - **IMPLEMENTATION:** bỏ centers khỏi JSON, tăng version2; loadReference đọc repository DB, auth đọc is_active từng login/request, E08 recheck/SHARE trong transaction. Validate membership/active center lúc startup tiếp tục; tên được nạp lại khi startup. Migration/seed không ghi đè center đã sửa.
 - **Phạm vi:** không nhập dataset, không thay account/password/membership/API/frontend/SRS/ERD gốc, không Git. Căn cứ danh mục phục vụ L2 và QT-14/FR01/05/06; không tạo QT/endpoint mới.
 - **Kiểm chứng:** xem [báo cáo và kết quả thật](service-centers-postgresql.md); lịch sử các phase trước giữ nguyên.
+
+## CSV-IMPORT — CSV-03 và TD-23 (2026-10-26)
+
+Sinh viên giao CSV-03 theo kế hoạch và các lựa chọn email nullable/center đã trao đổi. Migration004 chỉ thêm email nội bộ; public vẫn003. Startup chỉ cho phép004 cộng thêm pending sau003, không bỏ kiểm checksum/version hoặc cho phép thiếu migration khác; importer yêu cầu cột email.
+
+CLI kiểm manifest pin và bundle JSON/policy/lineage; service điều phối transaction, repository SQL, ReceiptStore private. Không thêm ledger table; journal trước COMMIT/receipt sau COMMIT, phục hồi theo transaction status và ID/identity, không đoán reuse từ phone/serial. Giữ local edits/tombstone, không đổi owner/catalog cũ; CLI apply chỉ schema test ở CSV-03. Có script chuẩn bị/replay portable; source/manifest CSV-02/catalog v2/credential hiện hành không đổi.
+
+Đây là IMPLEMENTATION/TECH thuộc CSV-03, không quy tắc học phần mới. [Hướng dẫn](../../../src/backend/docs/customer-device-import.md), [báo cáo](../data-import/csv-03.md) và TD-23 ghi đầy đủ kiểm chứng; CSV-04/05 chưa thực hiện.
+
+## CSV-05 — Public Windows và TD-24 (2026-10-26)
+
+Sinh viên giao CSV-05 sau kết quả CSV-04. Chọn PostgreSQL Windows hiện có; không nạp Docker. Sau backup phục hồi thử schema riêng, áp dụng004/catalog3, pilot100/121 kiểm API/UI rồi full thêm51.175/7.293; tổng nhập51.275/7.414, rerun0 insert và giữ dữ liệu cũ/credential. Không đổi API/frontend hoặc quy tắc nghiệp vụ.
+
+CLI thêm xác nhận public rõ schema/database, fingerprint mới, source hash và state-dir tuyệt đối; public không nhận catalog thay thế. Receipt/journal persistent, DB/catalog/state backup cùng mốc; target OID khác không được đoán reuse. Fixture catalog nhỏ cố định bảo toàn assertion cũ, live smoke dùng startup production/credential thật và chỉ đọc public.109 unit/HTTP +118 PG runner +45 client +53 browser và6/6 live ở mỗi mốc PASS. Source/manifest/migration cũ/disclosure nguyên trạng. Xem [CSV-05](../data-import/csv-05.md), TD-24 và [bàn giao](../../../src/backend/docs/customer-device-import-operations.md).

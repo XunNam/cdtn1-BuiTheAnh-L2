@@ -33,7 +33,7 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
     const config = validateReference(await referenceInput());
     await t.test("migration từ schema trống và hai runner đồng thời", async () => {
       const results = await Promise.all([migrate(pool), migrate(pool)]);
-      assert.deepEqual(results.flat().sort(), [1, 2, 3]);
+      assert.deepEqual(results.flat().sort(), [1, 2, 3, 4]);
       const tables = await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname=current_schema() ORDER BY tablename");
       assert.deepEqual(tables.rows.map(x => x.tablename), ["customer", "device", "issue_category", "schema_migration", "service_center", "ticket", "ticket_communication", "ticket_status_log"]);
     });
@@ -50,10 +50,10 @@ test("PostgreSQL thật: migration, seed, integrity và foundation trong schema 
     });
     await t.test("migration lỗi rollback cùng version, không giữ dữ liệu dở", async () => {
       const sql = "INSERT INTO customer(full_name,phone,center_id) VALUES('Rollback migration','0981111111',1); SELECT 1/0;";
-      const extra = { version: 4, name: "004_failure_probe.sql", sql, checksum: createHash("sha256").update(sql).digest("hex") };
+      const extra = { version: 5, name: "005_failure_probe.sql", sql, checksum: createHash("sha256").update(sql).digest("hex") };
       await assert.rejects(migrate(pool, [...migrations, extra]));
       assert.equal((await pool.query("SELECT 1 FROM customer WHERE phone=$1", ["0981111111"])).rowCount, 0);
-      assert.equal((await pool.query("SELECT 1 FROM schema_migration WHERE version=4")).rowCount, 0);
+      assert.equal((await pool.query("SELECT 1 FROM schema_migration WHERE version=5")).rowCount, 0);
     });
     await t.test("seed hai lần:30 customer/30 device/6 nhóm/200 ticket/200 log/30 trao đổi", async () => {
       const first = await seed(pool, config), second = await seed(pool, config);

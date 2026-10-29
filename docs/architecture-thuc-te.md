@@ -81,3 +81,13 @@ Giới hạn: session một process, reference config offline, chưa cloud/HA/mo
 Theo yêu cầu và lựa chọn hai trung tâm hiện có của sinh viên: migration003 chuyển ID1/2 cùng tên/trạng thái vào service_center và bổ sung hai FK RESTRICT. ServiceCenterRepository đọc dữ liệu, loadReference(file,pool) ghép centers từ DB vào cấu hình runtime; source JSON version2 chỉ chứa products/accounts. Tên/membership được kiểm khi startup; auth dùng repository kiểm trạng thái DB mỗi login/request, không dựa snapshot is_active cũ. E08 giữ khóa SHARE trung tâm trong transaction trước khóa customer/device/category, ngăn chuyển is_active trong lúc tạo phiếu.
 
 Auth authenticate nay async; kiểm lại TTL/Map sau SQL để không nhận phiên hết hạn hoặc đã đóng lúc chờ query. UI/client/contract HTTP không đổi, chưa có endpoint quản trị trung tâm. Sáu bảng lõi/luật L2 giữ nguyên, thêm một danh mục phụ thuộc; không nhập CSV hoặc mở L4/L5. Chi tiết [báo cáo](progress/backend/service-centers-postgresql.md).
+
+## Nguồn khách hàng/thiết bị CSV — CSV-03–05 (TD-23/24)
+
+`Import CLI → loadImportPackage → ImportService → ImportRepository → PostgreSQL`; ReceiptStore private lưu journal/mapping/receipt, không API upload hoặc bảng staging mới. Migration004 thêm customer.email TEXT NULL nội bộ; CRUD/DTO/frontend không nhận/trả email. UI tiếp tục gọi API đọc DB, không đọc CSV hoặc kết nối SQL trực tiếp.
+
+CSV-05 ngày26/10/2026 đã áp dụng public Windows: thêm51.275 customer/7.414 device, giữ dữ liệu cũ; catalog3 thêm320 sản phẩm, giữ products/accounts/membership. Center vẫn từ SQL ID1/2; assignment mô phỏng seed20261026 đóng băng trong manifest. Ngày mua thiếu giữ NULL; snapshot/SLA/approval do service hiện hành khi tạo phiếu mới.
+
+Public apply cần schema/database xác nhận +fingerprint mới +source hash +state-dir persistent tuyệt đối, dùng catalog vận hành. Startup không tự import. Transaction/advisory lock/constraint giữ nguyên; COMMIT chưa rõ kết quả đối chiếu journal qua transaction status/ID, không đoán reuse từ phone/serial. Backup DB/catalog/credential/state đi cùng mốc; restore sang DB có OID khác không tự reuse receipt.
+
+Fixture test có catalog nhỏ riêng giữ assertion cũ. Live smoke dùng startup production/credential thật, chỉ đọc nghiệp vụ public và so fingerprint trước/sau. Docker/clone-seed độc lập, không tự có CSV Windows. [CSV-05](progress/data-import/csv-05.md), [bàn giao/phục hồi](../src/backend/docs/customer-device-import-operations.md).

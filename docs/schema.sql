@@ -2,6 +2,8 @@
 -- DEP-A ngày 2026-10-23 giữ 6 bảng lõi; cập nhật TD-22 ngày 2026-10-25:
 -- service_center là 1 bảng danh mục phụ thuộc theo yêu cầu sinh viên.
 -- Product/account/membership giữ config; center đọc PostgreSQL và có FK.
+-- TD-23 / CSV-03 ngày 2026-10-26: DDL đích có customer.email TEXT NULL.
+-- Migration004 chỉ kiểm trong schema riêng ở CSV-03; public vẫn003.
 -- DD02/03/05/06/07/08, DEP-RANGE, AUTH và CRUD đã được sinh viên duyệt.
 -- Cấu hình/validation dùng cùng miền tháng và quy ước Unicode trong phụ lục API.
 -- schema_migration (1 bảng kỹ thuật) chỉ được tạo ở Giai đoạn 2 khi được giao.
@@ -26,6 +28,7 @@ CREATE TABLE customer (
     center_id   BIGINT NOT NULL CHECK (center_id > 0)
         CONSTRAINT fk_customer_center REFERENCES service_center(center_id) ON DELETE RESTRICT,
     address     VARCHAR(255), -- API E01/E02; Case Study mục 8, trang PDF 15.
+    email       TEXT, -- CSV dependency: nullable, không UNIQUE, chưa đưa lên API/UI.
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at  TIMESTAMPTZ,
     CONSTRAINT chk_customer_phone CHECK (phone ~ '^0[0-9]{9}$')

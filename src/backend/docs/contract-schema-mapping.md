@@ -175,3 +175,9 @@ NFR01 cần 100 lượt đo UI với 200 phiếu, NFR02 cần HTTP và kiểm DB
 Các bảng và mô tả DEP-A bên trên là baseline Phase1. Theo yêu cầu mới và xác nhận chỉ chuyển hai trung tâm, danh mục centers hiện được lưu trong service_center qua migration003; customer/ticket có FK mới. loadReference(file,pool) lấy centers từ repository DB và kiểm membership; JSON version2 chỉ còn products/accounts. Auth kiểm is_active DB ở login/request, E08 recheck trung tâm trong transaction.
 
 A01/E01–E13 vẫn giữ nguyên method/path/field/status/quyền; active_center_id/allowed_center_ids vẫn từ tài khoản đã xác thực, center_id hợp lệ đối chiếu DB. Không thêm endpoint quản trị hoặc lấy tên trung tâm cho frontend; phần trình bày hiện vẫn ID theo contract. Product/account/actor ID còn config, không FK mới cho chúng. Sáu bảng lõi không đổi; thêm một danh mục phụ thuộc, không nhập CSV. [Báo cáo](../../../docs/progress/backend/service-centers-postgresql.md).
+
+## CSV-03 / TD-23 — email nội bộ (2026-10-26)
+
+Schema đích thêm customer.email TEXT NULL qua004, không UNIQUE; đây là dependency CSV sinh viên chọn lưu, không request/response mới của E01–E04. DTO/whitelist/PATCH giữ nguyên, importer repository nhận thêm email/created_at/center từ bundle đã kiểm. Device giữ owner/product/months tin cậy, purchase_date=NULL nếu nguồn thiếu. Không nhập lịch sử ticket/log.
+
+Startup chấp nhận003 hoặc004 với checksum đúng, chỉ004 được phép pending; importer yêu cầu email/catalog trước ghi, CLI public apply bị chặn. Không bảng/endpoint mới, không sửa contract gốc/Frontend. [Hướng dẫn](customer-device-import.md), [báo cáo](../../../docs/progress/data-import/csv-03.md).

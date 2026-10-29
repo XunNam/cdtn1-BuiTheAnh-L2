@@ -146,3 +146,20 @@ Baseline đối chiếu: DDL/ERD DBML ban đầu và BC T04.pdf bản31 trang, M
 - **Thay đổi:** sinh viên yêu cầu lưu trung tâm vào PostgreSQL, xác nhận chuyển hai trung tâm hiện có trước. Thêm service_center(center_id,center_name,is_active); migration003 chuyển ID1/2/tên/trạng thái, FK customer/ticket ON DELETE RESTRICT. JSON reference version2 bỏ centers, repository DB là nguồn trung tâm; product/account/membership vẫn config.
 - **Vì sao:** đưa danh mục dependency L2 về PostgreSQL theo yêu cầu bổ sung và hướng dẫn dataset SE. Thay phần center của DEP-A, giữ sáu bảng lõi và thêm một danh mục; FR01/05/06/QT-14 liên quan, không luật mới. Chưa nhập CSV, không mở phân công/kho hoặc API quản trị trung tâm.
 - **Ảnh hưởng:** reference loader/foundation/auth/CLI/Compose startup/seed/E08, repository/migration/tests và tài liệu. Auth kiểm DB lúc login/request; E08 giữ SHARE center trong transaction.001/002, dữ liệu/snapshot/SLA/lịch sử/sequence, credential/API/frontend giữ nguyên. Báo cáo và minh chứng tại [service-centers-postgresql.md](progress/backend/service-centers-postgresql.md).
+
+## TD-23 — CSV-03: email nullable và importer cách ly (2026-10-26)
+
+- **Căn cứ:** sinh viên chọn lưu email nullable, dùng trung tâm SQL với phân bổ mô phỏng và giao CSV-03 theo [kế hoạch](plans/customer-device-csv-import-plan.md). Dependency FR01/02/04/07, QT-01/02/03/05/14/15; không thêm FR/QT hoặc module.
+- **Schema đích:** migration004 ADD customer.email TEXT NULL, không UNIQUE/default/backfill; đồng bộ DDL, không sửa001–003. Chưa apply public, chỉ kiểm sạch/upgrade/lặp trong schema test.
+- **Tương thích:** startup chỉ cho phép004 pending sau003, vẫn kiểm registry/checksum và từ chối thiếu migration khác. CRUD/DTO cũ không cần email; importer yêu cầu email/catalog đúng trước ghi. Public003 vẫn qua bootstrap foundation.
+- **Importer:** CLI → service → repository → PostgreSQL; ReceiptStore private ghi journal trước COMMIT/receipt sau COMMIT, đối chiếu trạng thái transaction nếu kết quả chưa rõ. Không bảng ledger hoặc endpoint mới. Chỉ reuse có provenance, giữ mutable edits/tombstones và owner/product/serial bất biến. CLI public apply bị chặn ở CSV-03.
+- **Tái lập:** thêm replay/snapshot chỉ đọc/chuẩn hóa có tham số trong scripts/dataset; bản catalog v3 và dữ liệu vẫn private. Source/manifest CSV-02/catalog v2/tài khoản/credential không đổi; không sửa disclosure.
+- **Kiểm chứng:**108 unit/HTTP,118 PG runner tests, typecheck/build và bộ thật pilot→full→rerun trong schema riêng đã dọn; public8 bảng/sequence/config/credential giữ nguyên. [CSV-03](progress/data-import/csv-03.md) ghi kết quả/giới hạn.
+
+## TD-24 — CSV-05: áp dụng dữ liệu khách hàng/thiết bị trên Windows (2026-10-26)
+
+- **Căn cứ:** sinh viên giao CSV-05 sau CSV-04; giữ policy/email nullable/seed và mapping đã chốt. FR01/02/04/05/06/07, QT-01/02/03/04/05/14/15 liên quan; không FR/QT mới hoặc đổi contract.
+- **Áp dụng:** public Windows migrate004, catalog3 bổ sung320 sản phẩm giữ101–104/accounts/membership; nạp51.275 khách/7.414 device theo pilot→full→rerun. Ngày mua NULL, email nội bộ, center1/2 mô phỏng seed20261026; không lịch sử phiếu hoặc module khác.
+- **Guard:** public CLI cần schema/database xác nhận rõ, source hash, state-dir tuyệt đối và fingerprint mới; không nhận catalog riêng. Transaction/journal/receipt/constraints giữ nguyên; không tự reuse natural keys thiếu provenance.
+- **Bảo toàn/tái lập:** backup trước/sau phục hồi thử schema riêng và dọn; giữ cột cũ/IDs/snapshot/log/credential. Fixture catalog demo riêng giữ assertion hồi quy; smoke production chỉ đọc public. Docker không nạp, source/manifest/Frontend/API/migration cũ/disclosure không sửa.
+- **Kiểm chứng:**109 unit/HTTP +118 PG runner +45 client +53 browser PASS;6/6 live ở pilot và6/6 full, rerun0 insert. [CSV-05](progress/data-import/csv-05.md) và [bàn giao](../src/backend/docs/customer-device-import-operations.md) ghi backup/receipt/giới hạn.

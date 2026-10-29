@@ -1,18 +1,53 @@
+# Dependency, build và cache được tạo lại khi cài/chạy ứng dụng.
 node_modules/
 .next/
 dist/
 build/
+out/
 coverage/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+
+# Cấu hình thật và credential chỉ giữ trên máy; vẫn theo dõi file mẫu.
 .env
+.env.*
+!.env.example
 .private/
 demo-passwords.local.json
-.env.local
-.env.*.local
-.env.compose
+*.pem
+*.key
+
+# Tài liệu học phần, thiết kế, kế hoạch, báo cáo, dataset và minh chứng.
+# Không xóa file local. File đã tracked cần được bỏ theo dõi riêng.
+docs/
+sources/
+ref/
+/data/
+/tests/
+/src/backend/README.md
+/src/frontend/README.md
+
+# Công cụ chuẩn bị/import CSV và kiểm chứng từng đợt, không thuộc runtime L2.
+# Giữ harness kiểm thử L2 được package.json và Docker verify sử dụng.
+/scripts/*
+!/scripts/test-all.mjs
+/src/backend/src/import/
+/src/backend/tests/import*.ts
+/src/backend/scripts/csv-import-*.mjs
+/src/backend/scripts/verify-center-migration.ts
+
+# Kết quả kiểm thử được tạo lại; vẫn giữ mã test và fixture của L2 trong src/.
 test-results/
 playwright-report/
-*.tsbuildinfo
 *.log
+
+# Hướng dẫn agent và cấu hình công cụ cá nhân.
+AGENTS.md
+.agents/
+.codex/
+.idea/
+.vscode/
+.vercel/
 .DS_Store
 Thumbs.db
-.idea/

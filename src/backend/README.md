@@ -264,3 +264,35 @@ Dependency gián tiếp body-parser được vá2.4.0 theo [advisory chính th�
 Đổi tên/trạng thái không bị seed hoặc migration lặp ghi đè. Tên được nạp lại ở startup; trạng thái dùng truy vấn DB trực tiếp. Chưa thêm endpoint/CRUD quản trị trung tâm; response A01/E01–E13 và frontend giữ nguyên. Bảy bảng dữ liệu (sáu lõi + trung tâm), một bảng migration kỹ thuật. Sáu trung tâm trong dataset và các CSV khác chưa được nạp.
 
 Kiểm thử SC-I01–07 được import từ `tests/postgres.test.ts`, nên `npm run test:db` và root `npm test` tự chạy, không cần script mới. [Báo cáo](../../docs/progress/backend/service-centers-postgresql.md), [minh chứng](../../docs/tests/backend/service-centers/verification.md).
+
+## CSV-03 — công cụ nhập khách hàng/thiết bị (mốc26/10/2026)
+
+Đã có migration004 email nullable, CLI `npm run db:import -- inspect|dry-run|apply ...`, importer transaction và journal/receipt. Ở mốc CSV-03 chưa apply public/catalog; startup hỗ trợ003 và importer yêu cầu004 khi ghi. CSV-05 bên dưới đã hoàn tất nạp Windows theo giao việc mới.
+
+[Hướng dẫn và lệnh đã kiểm chứng](docs/customer-device-import.md), [báo cáo](../../docs/progress/data-import/csv-03.md). Typecheck/build,108 unit/HTTP và118 PostgreSQL runner tests PASS; bộ thật pilot/full/rerun kiểm ở schema riêng rồi dọn. Các test chuẩn dùng fixture nhỏ, không cần CSV private; không công khai bundle hoặc state.
+
+## CSV-04 — kiểm thử API/UI với pilot đã nạp
+
+Đã kiểm chứng10/10 case pilot100 khách/121 thiết bị bằng API/PostgreSQL/Next.js thật; hồi quy108 unit/HTTP +118 PG runner +45 client +53 browser PASS. Không cần đổi API hoặc mã frontend. [Báo cáo CSV-04](../../docs/progress/data-import/csv-04.md).
+
+Harness `test:csv-ui` là kiểm tra bổ sung, cần nguồn CSV và bundle/manifest pilot CSV-02 private đã chuẩn bị, PostgreSQL có quyền CREATE schema, dependency cả hai phần và Chromium của Playwright. Đọc cấu hình DB từ `.env` backend hiện có. Chạy từ root bằng PowerShell:
+
+```powershell
+npm --prefix src/frontend run build
+$env:L2_UI_OUTPUT_DIR = Join-Path (Get-Location) 'docs/tests/data-import/csv-04/imported-ui'
+npm --prefix src/backend run test:csv-ui
+```
+
+Lệnh mặc định đọc manifest/pin trong `docs/tests/data-import/csv-02/manifest-summary.json`, nguồn trong `docs/CDTN1_Mekong Mobile_Dataset Smart CRM/dataset`. Trên checkout khác, chuẩn bị bundle theo [hướng dẫn importer](docs/customer-device-import.md#5-chuẩn-bị-từ-csv-trên-checkout-khác), rồi đặt `L2_CSV_UI_MANIFEST` (đường dẫn tuyệt đối), `L2_CSV_UI_MANIFEST_SHA256` (pin tương ứng) và `L2_CSV_UI_SOURCE_DIR` (thư mục nguồn tuyệt đối). Harness vẫn kiểm integrity và yêu cầu profile100/121; không tự tạo bundle hoặc bỏ qua checksum. Chọn `L2_UI_OUTPUT_DIR` mới để giữ bằng chứng lượt trước.
+
+Harness tự migrate004/seed/import trong schema ngẫu nhiên do nó sở hữu, chạy ứng dụng trên cổng riêng rồi dọn schema/process; không apply public, thay credential hoặc catalog vận hành. Chẩn đoán chi tiết/receipt nằm trong `.private/imports/customer-device/csv-04/runs/`; JSON/log/ảnh chia sẻ được che dữ liệu nhạy cảm. `npm test` ở root vẫn dùng fixture nhỏ, không cần bộ CSV/private này. Public chưa đổi ở mốc CSV-04; kết quả nạp thật CSV-05 bên dưới.
+
+## CSV-05 — dữ liệu CSV đã sử dụng trên Windows
+
+Public đã có migration004/catalog3, nạp51.275 khách/7.414 thiết bị, tổng51.306/7.444 cùng dữ liệu cũ. Phiếu/log/trao đổi200/200/30,2 trung tâm và account/password giữ nguyên. Bảo hành của device CSV chưa xác minh do thiếu ngày mua; email chỉ ở DB. Không import lịch sử phiếu hoặc sáu trung tâm CSV, không nạp Docker.
+
+CLI thêm `--confirm-public mekong-mobile-l2/public`, yêu cầu schema public tường minh, fingerprint dry-run mới, source-dir để kiểm hash và state-dir tuyệt đối/persistent; thiếu điều kiện vẫn từ chối. Giữ transaction/constraint/receipt và không nhận catalog thay thế khi apply public.
+
+Kết quả:109 unit/HTTP,118 PG runner,45 client,53 browser PASS; public smoke `test:csv-live` đạt6/6 pilot và6/6 full, backup trước/sau đã phục hồi thử trong schema riêng rồi dọn. Fixture nhỏ `tests/fixtures/reference.base.json` độc lập catalog vận hành; không đổi assertion cũ hoặc cần CSV lớn cho `npm test` chuẩn.
+
+[Báo cáo CSV-05](../../docs/progress/data-import/csv-05.md), [lệnh kiểm/chạy lại/backup/phục hồi](docs/customer-device-import-operations.md). Hai mẫu tra cứu thực tế ở root `.private/imports/customer-device/csv-05/demo-lookup.local.json`; không chia sẻ file này. Khởi động backend/frontend theo root README như trước, không cần chạy lại import/seed trên máy Windows hiện tại.

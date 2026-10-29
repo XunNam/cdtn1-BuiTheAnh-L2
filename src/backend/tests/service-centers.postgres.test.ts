@@ -35,7 +35,7 @@ test("Trung tâm PostgreSQL: upgrade, FK, nguồn dữ liệu và trạng thái 
     await pool.query("UPDATE customer SET center_id=2 WHERE phone='0887709001'");
     const before = (await pool.query("SELECT to_jsonb(c) AS value FROM customer c")).rows;
     await t.test("SC-I02 chuyển v2→v3 giữ customer/ID, thêm đúng hai trung tâm và FK validated", async () => {
-      assert.deepEqual(await migrate(pool), [3]); assert.deepEqual(await migrate(pool), []);
+      assert.deepEqual(await migrate(pool, migrations.slice(0, 3)), [3]); assert.deepEqual(await migrate(pool, migrations.slice(0, 3)), []);
       assert.deepEqual((await pool.query("SELECT to_jsonb(c) AS value FROM customer c")).rows, before);
       assert.deepEqual((await serviceCenterRepository.list(pool)).map(x => [x.center_id, x.center_name, x.is_active]), [["1", "Trung tâm demo A", true], ["2", "Trung tâm demo B", true]]);
       const fk = (await pool.query("SELECT convalidated FROM pg_constraint WHERE connamespace=current_schema()::regnamespace AND confrelid='service_center'::regclass")).rows;
@@ -56,7 +56,7 @@ test("Trung tâm PostgreSQL: upgrade, FK, nguồn dữ liệu và trạng thái 
     await t.test("SC-I04 đổi tên SQL được đọc từ DB, migration/seed lặp không ghi đè", async () => {
       await pool.query("UPDATE service_center SET center_name='Trung tâm đổi từ SQL' WHERE center_id=1");
       assert.equal((await loadReference(file, pool)).centers[0]!.center_name, "Trung tâm đổi từ SQL");
-      assert.deepEqual(await migrate(pool), []); await seed(pool, reference);
+      assert.deepEqual(await migrate(pool, migrations.slice(0, 3)), []); await seed(pool, reference);
       assert.equal((await serviceCenterRepository.list(pool))[0]!.center_name, "Trung tâm đổi từ SQL");
       await writeFile(file, JSON.stringify({ ...fileConfig, centers: reference.centers }));
       await assert.rejects(loadReference(file, pool), code("CONFIGURATION_ERROR"));
