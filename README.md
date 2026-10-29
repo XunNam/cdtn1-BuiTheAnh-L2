@@ -25,8 +25,6 @@ Phạm vi đưa lên GitHub gồm mã nguồn L2, migration/seed, cấu hình ch
 | Mở ứng dụng dùng thử, trình diễn hoặc dựng trên máy khác | **Docker** | Chạy frontend + backend + PostgreSQL cùng lúc; không cần cài Node/PostgreSQL riêng trên host |
 | Sửa code, xem log và kiểm tra từng phần khi phát triển | **Windows trực tiếp** | Hai terminal; backend/frontend theo dõi thay đổi code. Máy phát triển hiện tại đã có cấu hình và DB |
 
-**Gợi ý:** dùng Windows khi tiếp tục lập trình, dùng Docker để chạy bản đóng gói trước khi trình diễn/nộp bài. Nếu chỉ muốn mở bản đang có trên máy phát triển, làm theo mục 3 ngay bên dưới.
-
 Hai cách mặc định cùng dùng cổng **3000/3001**, nên chọn một cách tại một thời điểm. Database và mật khẩu của Docker **riêng** với Windows; dữ liệu không tự đồng bộ giữa hai môi trường.
 
 > Mọi lệnh bên dưới chạy bằng **PowerShell tại thư mục gốc project**, nơi có `package.json` và `compose.yaml`. Mở terminal trong thư mục project trước khi sao chép lệnh.
